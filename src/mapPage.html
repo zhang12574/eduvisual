@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+
+<head>
+  <title>MapPage</title>
+  <script src="d3.min.js"></script>
+  <script src="d3-v6-tip.js"></script>
+  <script src="jquery-3.4.1.min.js"></script>
+  <script src="echarts.min.js"></script>
+  <link rel="stylesheet" href="d3-tip.css">
+</head>
+
+<body>
+    <div id="container" style="height: 800px; width: 1000px"></div>
+  <script>
+    var dom = document.getElementById('container');
+    var myChart = echarts.init(dom);
+    d3.json('chinamap.json').then(function(geoJson) {
+        echarts.registerMap('china', geoJson);
+    });
+    d3.csv("udata.csv").then(function(data) {
+        var dataTransfered = data.map(function(d) {
+            return {
+                name: d.name,
+                value: parseFloat(d.value)
+            }
+        });
+        var option = {
+            tooltip: {
+                trigger: 'item',
+                showDelay: 0,
+                transitionDuration: 0.2
+            },
+            visualMap: {
+                left: 'right',
+                min: 0,
+                max: 150000,
+                inRange: {
+                    color: [
+                    '#313695',
+                    '#4575b4',
+                    '#74add1',
+                    '#abd9e9',
+                    '#e0f3f8',
+                    '#ffffbf',
+                    '#fee090',
+                    '#fdae61',
+                    '#f46d43',
+                    '#d73027',
+                    '#a50026'
+                    ]
+                },
+                text: ['High', 'Low'],
+                calculable: true
+            },
+            toolbox: {
+                show: true,
+                //orient: 'vertical',
+                left: 'left',
+                top: 'top',
+                feature: {
+                    dataView: { readOnly: false },
+                    restore: {},
+                    saveAsImage: {}
+            }
+            },
+            series: [{
+                type: 'map',
+                map: 'china',
+                data: dataTransfered,
+            }]
+        };
+        myChart.setOption(option);
+    });
+
+  </script> 
+</body>
+</html>
