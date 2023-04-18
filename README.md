@@ -1,5 +1,3 @@
 # eduvisual  
 run: python -m http.server  
-浏览器打开: localhost:8000，找到main.html
-
-张扬好丑
+浏览器打开: localhost:8000，找到main.html  
