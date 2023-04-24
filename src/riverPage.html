@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+
+<head>
+  <title>MapPage</title>
+  <script src="d3.min.js"></script>
+  <script src="d3-v6-tip.js"></script>
+  <script src="jquery-3.4.1.min.js"></script>
+  <script src="echarts.min.js"></script>
+  <link rel="stylesheet" href="d3-tip.css">
+</head>
+
+<body>
+    <div id="container" style="height: 800px; width: 1000px"></div>
+  <script>
+    d3.csv("staff.csv").then(function(data) {
+        var dom = document.getElementById('container');
+        var myChart = echarts.init(dom);
+        myChart.hideLoading();
+        names = data.map((d)=>{return d.name});
+        p_data = [];
+        for (let y = 2013; y <= 2021; y += 1) {
+            tmp = data.map((d)=>{
+                if (d[y] != "") {
+                    return [""+y, parseInt(d[y]), d.name];
+                }
+                else {
+                    return [""+y, 1, d.name];
+                }
+            })
+            p_data = p_data.concat(tmp);
+        }
+        option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+            type: 'line',
+            lineStyle: {
+                color: 'rgba(0,0,0,0.2)',
+                width: 1,
+                type: 'solid'
+            }
+            }
+        },
+        legend: {
+            data: names
+        },
+        singleAxis: {
+            top: 50,
+            bottom: 50,
+            axisTick: {},
+            axisLabel: {},
+            type: 'time',
+            axisPointer: {
+            animation: true,
+            label: {
+                show: true
+            }
+            },
+            splitLine: {
+            show: true,
+            lineStyle: {
+                type: 'dashed',
+                opacity: 0.2
+            }
+            }
+        },
+        series: [
+            {
+            type: 'themeRiver',
+            emphasis: {
+                itemStyle: {
+                shadowBlur: 20,
+                shadowColor: 'rgba(0, 0, 0, 0.8)'
+                }
+            },
+            data: p_data
+            }
+        ]
+        };
+        myChart.setOption(option);
+        window.addEventListener('resize', myChart.resize);
+    });
+  </script> 
+</body>
+</html>
