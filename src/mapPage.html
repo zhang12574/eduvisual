@@ -19,11 +19,11 @@
     d3.json('chinamap.json').then(function(geoJson) {
         echarts.registerMap('china', geoJson);
     });
-    d3.csv("udata.csv").then(function(data) {
+    d3.csv("school.csv").then(function(data) {
         var dataTransfered = data.map(function(d) {
             return {
                 name: d.name,
-                value: parseFloat(d.value)
+                value: parseFloat(d["2021"])
             }
         });
         var option = {
@@ -35,7 +35,7 @@
             visualMap: {
                 left: 'right',
                 min: 0,
-                max: 150000,
+                max: 1500,
                 inRange: {
                     color: [
                     '#313695',
