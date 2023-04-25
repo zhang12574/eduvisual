@@ -14,6 +14,7 @@
 <body>
     <div id="container" style="height: 800px; width: 1000px"></div>
   <script>
+    // d3.csv("school.csv").then(function(data) {
     d3.csv("staff.csv").then(function(data) {
         var dom = document.getElementById('container');
         var myChart = echarts.init(dom);
