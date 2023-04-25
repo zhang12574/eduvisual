@@ -33,9 +33,10 @@
                 transitionDuration: 0.2
             },
             visualMap: {
-                left: 'right',
+                left: 900,
+                top: 400,
                 min: 0,
-                max: 1500,
+                max: 1200,
                 inRange: {
                     color: [
                     '#313695',
@@ -66,6 +67,7 @@
             }
             },
             series: [{
+                name: "普通高中数目(所)",
                 type: 'map',
                 map: 'china',
                 data: dataTransfered,

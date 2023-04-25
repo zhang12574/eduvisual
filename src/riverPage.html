@@ -12,22 +12,22 @@
 </head>
 
 <body>
-    <div id="container" style="height: 800px; width: 1000px"></div>
+    <div id="container" style="height: 600px; width: 1000px"></div>
   <script>
     // d3.csv("school.csv").then(function(data) {
     d3.csv("staff.csv").then(function(data) {
         var dom = document.getElementById('container');
         var myChart = echarts.init(dom);
         myChart.hideLoading();
-        names = data.map((d)=>{return d.name});
+        names = data.map((d)=>{return d.name+"(万人)"});
         p_data = [];
         for (let y = 2013; y <= 2021; y += 1) {
             tmp = data.map((d)=>{
                 if (d[y] != "") {
-                    return [""+y, parseInt(d[y]), d.name];
+                    return [""+y, parseInt(d[y]), d.name+"(万人)"];
                 }
                 else {
-                    return [""+y, 1, d.name];
+                    return [""+y, 1, d.name+"(万人)"];
                 }
             })
             p_data = p_data.concat(tmp);
