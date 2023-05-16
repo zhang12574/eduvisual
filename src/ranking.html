@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+
+<head>
+    <title>MapPage</title>
+    <script src="d3.min.js"></script>
+    <script src="d3-v6-tip.js"></script>
+    <script src="jquery-3.4.1.min.js"></script>
+    <script src="echarts.min.js"></script>
+    <link rel="stylesheet" href="d3-tip.css">
+    <style>
+        /* 添加自定义样式 */
+        .container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        select {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background-color: #f5f5f5;
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #container {
+            height: 500px;
+            width: 800px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container" style="height: 800px; width: 1000px"></div>
+    <div>
+        <label for="school-select">选择学校：</label>
+        <select id="school-select">
+            <option value="">请选择学校</option>
+        </select>
+        <button id="add-school">添加</button>
+        <button id="remove-school">删除</button>
+    </div>
+    <div>
+        <label for="year-select">选择年份：</label>
+        <select id="year-select">
+            <option value="">请选择年份</option>
+        </select>
+        <button id="add-year">添加</button>
+        <button id="remove-year">删除</button>
+    </div>
+    <script>
+        var rankingData = {};
+        d3.json('ranking_data.json').then(function (jsonData) {
+            var schoolselect = document.getElementById('school-select');
+            jsonData.forEach(function(item) {
+                var school = item.name.toLowerCase().replace(/\s/g, '-');
+                var newOption = document.createElement('option');
+                newOption.value = school;
+                newOption.textContent = school;
+                schoolselect.appendChild(newOption);
+                rankingData[school] = {
+                    rank2015: item.rank2015,
+                    rank2016: item.rank2016,
+                    rank2017: item.rank2017,
+                    rank2018: item.rank2018,
+                    rank2019: item.rank2019,
+                };
+            });
+            console.log(rankingData);
+            var chart = echarts.init(document.getElementById('container'));
+            
+            var yearselect = document.getElementById("year-select")
+            var newOption2015 = document.createElement('option');
+            newOption2015.value = "rank2015";
+            newOption2015.textContent = "2015年";
+            yearselect.appendChild(newOption2015);
+
+            var newOption2016 = document.createElement('option');
+            newOption2016.value = "rank2016";
+            newOption2016.textContent = "2016年";
+            yearselect.appendChild(newOption2016);
+
+            var newOption2017 = document.createElement('option');
+            newOption2017.value = "rank2017";
+            newOption2017.textContent = "2017年";
+            yearselect.appendChild(newOption2017);
+
+            var newOption2018 = document.createElement('option');
+            newOption2018.value = "rank2018";
+            newOption2018.textContent = "2018年";
+            yearselect.appendChild(newOption2018);
+
+            var newOption2019 = document.createElement('option');
+            newOption2019.value = "rank2019";
+            newOption2019.textContent = "2019年";
+            yearselect.appendChild(newOption2019);
+
+            var selectedSchools = ["清华大学", "北京大学"]; // 保存选择的学校
+            var selectedYears = ["rank2015", "rank2016"]; // 保存选择的年份
+
+            // 根据选择的学校和年份更新柱状图
+            function updateChart() {
+                var legendData = [];
+                var seriesData = [];
+
+
+                // 添加年份数据
+                selectedYears.forEach(function (year) {
+                    var yearData = {};
+                    yearData.name = year;
+                    yearData.data = [];
+
+                    // 添加学校
+                    selectedSchools.forEach(function (school) {
+                        var rank = rankingData[school][year];
+                        yearData.data.push(rank);
+                    });
+
+                    legendData.push(year);
+                    seriesData.push(yearData);
+                });
+                var option = {
+                    title: {
+                        text: '学校排名',
+                        textStyle: {
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                            color: '#333'
+                        }
+                    },
+                    legend: {
+                        data: legendData,
+                        textStyle: {
+                            color: '#666'
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: selectedSchools,
+                        axisLine: {
+                            lineStyle: {
+                                color: '#999'
+                            }
+                        },
+                        axisLabel: {
+                            textStyle: {
+                                color: '#666'
+                            }
+                        }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLine: {
+                            lineStyle: {
+                                color: '#999'
+                            }
+                        },
+                        axisLabel: {
+                            textStyle: {
+                                color: '#666'
+                            }
+                        }
+                    },
+                    series: seriesData.map(function (data, index) {
+                        var colorList = ['#007bff', '#e83e8c', '#6f42c1', '#17a2b8', '#ffc107', '#28a745', '#dc3545', '#fd7e14', '#6610f2'];
+                        return {
+                            name: data.name,
+                            type: 'bar',
+                            data: data.data,
+                            barWidth: Math.floor(100 / selectedYears.length / selectedSchools.length) + '%',
+                            itemStyle: {
+                                color: colorList[index % colorList.length]
+                            }
+                        };
+                    })
+                };
+
+                chart.clear();
+                chart.setOption(option);
+            }
+            // 添加学校
+            document.getElementById('add-school').addEventListener('click', function () {
+                var selectedSchool = document.getElementById('school-select').value;
+
+                var index = selectedSchools.indexOf(selectedSchool);
+                if (index !== -1) {
+                    selectedSchools.splice(index, 1);
+                    updateChart();
+                }
+                if (selectedSchool && !selectedSchools.includes(selectedSchool)) {
+                    selectedSchools.push(selectedSchool);
+                    updateChart();
+                }
+            });
+            // 删除学校
+            document.getElementById('remove-school').addEventListener('click', function () {
+                var selectedSchool = document.getElementById('school-select').value;
+                var index = selectedSchools.indexOf(selectedSchool);
+                if (index !== -1) {
+                    selectedSchools.splice(index, 1);
+                    updateChart();
+                }
+            });
+
+            // 添加年份
+            document.getElementById('add-year').addEventListener('click', function () {
+                var selectedYear = document.getElementById('year-select').value;
+
+                if (selectedYear && !selectedYears.includes(selectedYear)) {
+                    selectedYears.push(selectedYear);
+                    updateChart();
+                }
+            });
+
+            // 删除年份
+            document.getElementById('remove-year').addEventListener('click', function () {
+                var selectedYear = document.getElementById('year-select').value;
+
+                var index = selectedYears.indexOf(selectedYear);
+                if (index !== -1) {
+                    selectedYears.splice(index, 1);
+                    updateChart();
+                }
+            });
+
+            // 初始化柱状图
+            updateChart();
+        });
+        // 模拟的排名数据
+        // var rankingData = {
+        //     school1: {
+        //         year1: 2,
+        //         year2: 3
+        //     },
+        //     school2: {
+        //         year1: 2,
+        //         year2: 4
+        //     },
+        //     school3: {
+        //         year1: 1,
+        //         year2: 2
+        //     }
+        // };
+
+
+
+    </script>
+</body>
+
+</html>
