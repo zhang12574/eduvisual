@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+
+<head>
+  <title>MapPage</title>
+  <script src="d3.min.js"></script>
+  <script src="d3-v6-tip.js"></script>
+  <script src="jquery-3.4.1.min.js"></script>
+  <script src="echarts.min.js"></script>
+  <script src="echarts-wordcloud.js"></script>
+  <script src="echarts-wordcloud.min.js"></script>
+  <script src="flexible.js"></script>
+  <script src="echarts.min.js"></script>
+  <script src="echarts-wordcloud.min.js"></script>
+  <link rel="stylesheet" href="d3-tip.css">
+</head>
+
+<body>
+  <div id="container" style="height: 800px; width: 1000px"></div>
+  <script>
+    d3.json('../data/中国大学及评价.json').then(function (jsonData) {
+      var container = document.getElementById('container');
+      const myChart = echarts.init(container);
+      const schoolname = "清华大学";
+      var selected_data = jsonData.find(function (item) {
+        return item.name === schoolname;
+      });
+      console.log(selected_data);
+      var score = [[Number(selected_data.reception["教师投入"].slice(0, -1)),
+      Number(selected_data.reception["学习风气"].slice(0, -1)),
+      Number(selected_data.reception["硬件设施"].slice(0, -1)),
+      Number(selected_data.reception["奖助学金"].slice(0, -1)),
+      Number(selected_data.reception["校园生活"].slice(0, -1)),
+      Number(selected_data.reception["就业发展"].slice(0, -1))]];
+      console.log(score);
+      const lineStyle = {
+        width: 1,
+        opacity: 0.5
+      };
+      var option = {
+        backgroundColor: '#161627',
+        title: {
+          text: 'AQI - Radar',
+          left: 'center',
+          textStyle: {
+            color: '#eee'
+          }
+        },
+        legend: {
+          bottom: 5,
+          data: ['Beijing', 'Shanghai', 'Guangzhou'],
+          itemGap: 20,
+          textStyle: {
+            color: '#fff',
+            fontSize: 14
+          },
+          selectedMode: 'single'
+        },
+        radar: {
+          indicator: [
+            { name: '教师投入', max: 5 },
+            { name: '学习风气', max: 5 },
+            { name: '硬件设施', max: 5 },
+            { name: '奖助学金', max: 5 },
+            { name: '校园生活', max: 5 },
+            { name: '就业发展', max: 5 }
+          ],
+          shape: 'circle',
+          splitNumber: 5,
+          axisName: {
+            color: 'rgb(238, 197, 102)'
+          },
+          splitLine: {
+            lineStyle: {
+              color: [
+                'rgba(238, 197, 102, 0.1)',
+                'rgba(238, 197, 102, 0.2)',
+                'rgba(238, 197, 102, 0.4)',
+                'rgba(238, 197, 102, 0.6)',
+                'rgba(238, 197, 102, 0.8)',
+                'rgba(238, 197, 102, 1)'
+              ].reverse()
+            }
+          },
+          splitArea: {
+            show: false
+          },
+          axisLine: {
+            lineStyle: {
+              color: 'rgba(238, 197, 102, 0.5)'
+            }
+          }
+        },
+        series: [
+          {
+            name: selected_data.name,
+            type: 'radar',
+            lineStyle: lineStyle,
+            data: score,
+            symbol: 'none',
+            itemStyle: {
+              color: '#F9713C'
+            },
+            areaStyle: {
+              opacity: 0.1
+            }
+          },
+        ]
+      };
+      myChart.setOption(option)
+    });
+
+  </script>
+</body>
+
+</html>
