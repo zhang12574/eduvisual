@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+
+<head>
+  <title>MapPage</title>
+  <script src="d3.min.js"></script>
+  <script src="d3-v6-tip.js"></script>
+  <script src="jquery-3.4.1.min.js"></script>
+  <script src="echarts.min.js"></script>
+  <script src="echarts-wordcloud.js"></script>
+  <script src="echarts-wordcloud.min.js"></script>
+  <script src="flexible.js"></script>
+  <script src="echarts.min.js"></script>
+  <script src="echarts-wordcloud.min.js"></script>
+  <link rel="stylesheet" href="d3-tip.css">
+</head>
+
+<body>
+  <div id="container" style="height: 800px; width: 1000px"></div>
+  <script>
+    // 准备词云数据
+    const schoolname = "清华大学";
+    d3.json('../data/专业排名.json').then(function (jsonData) {
+      var schoolselect = document.getElementById('container');
+      var target_school = jsonData.find(function (item) {
+        return item.name === schoolname
+      })
+
+      var target_mode = target_school['ranked-disciplines'];
+      var cnt = 0;
+      var value_range = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-'];
+
+      var disciplines_filtered = [];
+      for (i in target_mode) {
+        var item = target_mode[i];
+        // console.log(item);
+        if (item.rank == "A+" || item.rank == "A" || item.rank == "A-" || item.rank == "B+"
+          || item.rank == "B" || item.rank == "B-") {
+          disciplines_filtered.push(item);
+        }
+      }
+      // console.log(disciplines_filtered);
+      wordData = disciplines_filtered.map(function (item) {
+        function get_weight(rank) {
+          if (rank == "A+") {
+            return 100;
+          }
+          else if (rank == "A") {
+            return 95;
+          }
+          else if (rank == "A-") {
+            return 90;
+          }
+          else if (rank == "B+") {
+            return 85;
+          }
+          else if (rank == "B") {
+            return 80;
+          }
+          else if (rank == "B-") {
+            return 75;
+          }
+          else if (rank == "C+") {
+            return 70;
+          }
+          return 60;
+        }
+        // console.log(item);
+        return {
+          name: item.class,
+          value: get_weight(item.rank)
+        }
+      })
+      console.log(wordData);
+      const myChart = echarts.init(document.getElementById("container"));
+
+      const option = {
+        series: [{
+          type: "wordCloud",
+          shape: "circle",
+          gridSize: 10,
+          sizeRange: [6, 15],
+          rotationRange: [-90, 90],
+          textStyle: {
+            normal: {
+              fontFamily: "Arial, sans-serif",
+              color: function () {
+                return 'rgb(' + [
+                  Math.round(Math.random() * 160),
+                  Math.round(Math.random() * 160),
+                  Math.round(Math.random() * 160)
+                ].join(',') + ')';
+              }
+            }
+          },
+          emphasis: {
+            textStyle: {
+              fontWeight: "bold"
+            }
+          },
+          data: wordData
+        }]
+      };
+
+      myChart.setOption(option);
+    });
+  </script>
+</body>
+
+</html>
