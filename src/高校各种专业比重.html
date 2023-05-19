@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+
+<head>
+    <title>MapPage</title>
+    <script src="d3.min.js"></script>
+    <script src="d3-v6-tip.js"></script>
+    <script src="jquery-3.4.1.min.js"></script>
+    <script src="echarts.min.js"></script>
+    <link rel="stylesheet" href="d3-tip.css">
+    <style>
+        /* 添加自定义样式 */
+        .container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        select {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background-color: #f5f5f5;
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #container {
+            height: 500px;
+            width: 800px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container" style="height: 800px; width: 1000px"></div>
+    <div>
+        <label for="school-select">选择学校：</label>
+        <select id="school-select">
+            <option value="">请选择学校</option>
+        </select>
+        <button id="add-school">添加</button>
+        <button id="remove-school">删除</button>
+    </div>
+    <div>
+        <label for="year-select">选择年份：</label>
+        <select id="year-select">
+            <option value="">请选择年份</option>
+        </select>
+        <button id="add-year">添加</button>
+        <button id="remove-year">删除</button>
+    </div>
+    <script>
+        // var school_name = "清华大学"
+        var year = "2023"
+        var majorData = {};
+        var schoolname = "南开大学"
+        d3.json('../data/专业排名.json').then(function (jsonData) {
+            var schoolselect = document.getElementById('container');
+            var target_school = jsonData.find(function(item){
+                return item.name === schoolname
+            })
+            
+            var target_mode = target_school['ranked-disciplines']
+            
+            var Names = ['A+','A','A-','B+','B','B-','C+','C','C-']
+            var counts = [0,0,0,0,0,0,0,0,0]
+            target_mode.forEach(element => {
+                for(var i=0;i<9;i++){
+                    if(element.rank === Names[i])counts[i] = counts[i]+1
+                    // if(element.rank === 'B')console.log(element.class)
+                }
+                return
+            });
+
+            var fnames = []
+            var fcounts = []
+
+            for(var i=0;i<9;i++){
+                if(counts[i] != 0){
+                    fnames.push(Names[i])
+                    fcounts.push(counts[i])
+                }
+            }
+
+            datas = []
+
+            for(var i=0;i<fnames.length;i++){
+                var data = {}
+                data['value'] = fcounts[i]
+                data['name'] = fnames[i]
+                datas.push(data)
+            }
+
+            console.log(fnames)
+            console.log(fcounts)
+
+            var myChart = echarts.init(schoolselect);
+            var option;
+
+            option = {
+            title: {
+                text: schoolname,
+                subtext: year,
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b} : {c} ({d}%)'
+            },
+            legend: {
+                left: 'center',
+                top: 'bottom',
+                data: fnames
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                mark: { show: true },
+                dataView: { show: true, readOnly: false },
+                restore: { show: true },
+                saveAsImage: { show: true }
+                }
+            },
+            series: [
+                {
+                name: 'Radius Mode',
+                type: 'pie',
+                radius: [20, 140],
+                center: ['25%', '50%'],
+                roseType: 'radius',
+                itemStyle: {
+                    borderRadius: 5
+                },
+                label: {
+                    show: true
+                },
+                emphasis: {
+                    label: {
+                    show: true
+                    }
+                },
+                data: datas
+                },
+                {
+                name: 'Area Mode',
+                type: 'pie',
+                radius: [20, 140],
+                center: ['75%', '50%'],
+                roseType: 'radius',
+                itemStyle: {
+                    borderRadius: 5
+                },
+                data: datas
+                }
+            ]
+            };
+
+            option && myChart.setOption(option);
+
+        });
+
+
+    </script>
+</body>
+
+</html>
