@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+
+<head>
+  <title>MainPage</title>
+  <script src="d3.min.js"></script>
+  <script src="d3-v6-tip.js"></script>
+  <script src="jquery-3.4.1.min.js"></script>
+  <script src="echarts.min.js"></script>
+  <link rel="stylesheet" href="d3-tip.css">
+</head>
+
+<body>
+    <div class="header">
+        <p>a</p>
+    </div>
+    <section class="main">
+        <div class="column">
+            <div id="lefttopdiv">
+                <p>a</p>
+            </div>
+            <div id="leftmiddiv" style="background-color:pink;">
+                <p>a</p>
+            </div>
+            <div id="leftbotdiv" style="background-color:pink;">
+                <p>a</p>
+            </div>
+        </div>
+
+        <div class="column">
+            <div id="maintable"></div>
+            <table id="table">
+                <tr clas="tr">
+                <th>排名</th>
+                <th>学校</th>
+                <th>英文名</th>
+                <th>总分</th>
+                </tr>
+                <!-- </th> -->
+            </table>
+        </div>
+
+        <div class="column">
+            <div id="righttopdiv" style="background-color:pink;">
+                <p>a</p>
+            </div>
+            <div id="rightmiddiv" style="background-color:pink;">
+                <p>a</p>
+            </div>
+            <div id="rightbotdiv" style="background-color:pink;">
+                <p>a</p>
+            </div>
+        </div>
+    </section>
+</body>
+
+<style type="text/css">
+    .header {
+        background-color: blue;
+        height: 12vh;
+    }
+    .main {
+        display: flex;
+        height: 85vh;
+        margin-top: 3vh;
+    }
+    .main .column {
+        flex: 3;
+        background-color: green;
+    }
+    .main .column:nth-child(2) {
+        flex: 6;
+        margin: 1 0.125rem 0.1875rem;
+        overflow:auto;
+        background-color: red;
+    }
+    .column #lefttopdiv {
+        background-color: pink;
+        height: 20vh;
+    }
+    .column #leftmiddiv {
+        background-color: pink;
+        height: 20vh;
+    }
+    .column #leftbotdiv {
+        background-color: pink;
+        height: 20vh;
+    }
+    .column #righttopdiv {
+        background-color: pink;
+        height: 20vh;
+    }
+    .column #rightmiddiv {
+        background-color: pink;
+        height: 20vh;
+    }
+    .column #rightbotdiv {
+        background-color: pink;
+        height: 20vh;
+    }
+    .column #maintable {
+        font-size: 15px;
+        font-weight: bolder;
+        align-items: center;
+    }
+    .tr {
+        color: yellow;
+        text-align: center;
+    }
+    .tr:hover {
+        color: darkred;
+        /* text-align: center; */
+        background-color: orange;
+    }
+    .tr-clicked {
+        color: blue;
+        background-color: green;
+    }
+    .tr:focus {
+        color: blue;
+        background-color: gray;
+    }
+    .td-name {
+        border: 3px solid gold;
+    }
+    .td-name-en {
+        border: 3px solid gold;
+    }
+    .td-score {
+        border: 3px solid gold;
+    }
+    .td-rank {
+        border: 3px solid gold;
+    }
+</style>
+<script>
+    function click() {
+        console.log("click")
+    }
+    d3.json("../data/中国大学及评价.json").then(function(json) {
+        console.log(json);
+        var box = document.getElementById('maintable');
+        var ul = document.getElementById('table');
+        for (var i = 0; i < json.length; i += 1) {
+            var li = document.createElement('tr');
+            li.className = "tr";
+            li.onclick = alert("click");
+            ul.appendChild(li);
+            
+            var td = document.createElement('td');
+            td.className = "td-rank";
+            li.append(td);
+            td.innerHTML = "<p>" + json[i]["rank"]; + "</p>";
+            td = document.createElement('td');
+            td.className = "td-name";
+            li.append(td);
+            td.innerHTML = "<p>" + json[i]["name"]; + "</p>";
+            td = document.createElement('td');
+            td.className = "td-name-en";
+            li.append(td);
+            td.innerHTML = "<p>" + json[i]["name-en"]; + "</p>";
+            td = document.createElement('td');
+            td.className = "td-score";
+            li.append(td);
+            td.innerHTML = "<p>" + json[i]["tot-score"]; + "</p>";
+        }
+        $(".tr").click(function() {
+            console.log($(this).children("td")[1].textContent)
+            $(this).toggleClass("tr-clicked");
+        })
+    });
+</script>
+</html>
