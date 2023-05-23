@@ -60,11 +60,11 @@
 <style type="text/css">
     .header {
         background-color: blue;
-        height: 12vh;
+        /* height: 12vh; */
     }
     .main {
         display: flex;
-        height: 85vh;
+        height: 95vh;
         margin-top: 3vh;
     }
     .main .column {
@@ -77,6 +77,10 @@
         overflow:auto;
         background-color: red;
     }
+    /* .main .column:nth-child(3) {
+        flex: 1;
+        background-color: gray;
+    } */
     .column #lefttopdiv {
         background-color: pink;
         min-height: 30vh;
@@ -142,6 +146,8 @@
     var majorOption;
     var cloudData;
     var cloudOption;
+    var radarChart;
+    var radarOption;
     // 专业比重
     var year = "2023"
     var majorData = {};
@@ -306,12 +312,107 @@
         cloudChart.setOption(cloudOption);
     });
 
-    // 总榜
-    d3.json("../data/中国大学及评价.json").then(function(json) {
-        console.log(json);
+// 雷达
+    d3.json('../data/中国大学及评价.json').then(function (jsonData) {
+      var container = document.getElementById('leftbotdiv');
+      radarChart = echarts.init(container);
+      var selected_data = jsonData.find(function (item) {
+        return item.name === schoolname;
+      });
+      console.log(selected_data);
+      var score = [[0, 0, 0, 0, 0, 0]];
+      if (selected_data.reception["教师投入"] != undefined) {
+        score = [[Number(selected_data.reception["教师投入"].slice(0, -1)),
+        Number(selected_data.reception["学习风气"].slice(0, -1)),
+        Number(selected_data.reception["硬件设施"].slice(0, -1)),
+        Number(selected_data.reception["奖助学金"].slice(0, -1)),
+        Number(selected_data.reception["校园生活"].slice(0, -1)),
+        Number(selected_data.reception["就业发展"].slice(0, -1))]];
+      }
+      console.log(score);
+      const lineStyle = {
+        width: 1,
+        opacity: 0.5
+      };
+      radarOption = {
+        backgroundColor: '#161627',
+        title: {
+          text: 'AQI - Radar',
+          left: 'center',
+          textStyle: {
+            color: '#eee'
+          }
+        },
+        legend: {
+          bottom: 5,
+          data: ['Beijing', 'Shanghai', 'Guangzhou'],
+          itemGap: 20,
+          textStyle: {
+            color: '#fff',
+            fontSize: 14
+          },
+          selectedMode: 'single'
+        },
+        radar: {
+          indicator: [
+            { name: '教师投入', max: 5 },
+            { name: '学习风气', max: 5 },
+            { name: '硬件设施', max: 5 },
+            { name: '奖助学金', max: 5 },
+            { name: '校园生活', max: 5 },
+            { name: '就业发展', max: 5 }
+          ],
+          shape: 'circle',
+          splitNumber: 5,
+          axisName: {
+            color: 'rgb(238, 197, 102)'
+          },
+          splitLine: {
+            lineStyle: {
+              color: [
+                'rgba(238, 197, 102, 0.1)',
+                'rgba(238, 197, 102, 0.2)',
+                'rgba(238, 197, 102, 0.4)',
+                'rgba(238, 197, 102, 0.6)',
+                'rgba(238, 197, 102, 0.8)',
+                'rgba(238, 197, 102, 1)'
+              ].reverse()
+            }
+          },
+          splitArea: {
+            show: false
+          },
+          axisLine: {
+            lineStyle: {
+              color: 'rgba(238, 197, 102, 0.5)'
+            }
+          }
+        },
+        series: [
+          {
+            name: selected_data.name,
+            type: 'radar',
+            lineStyle: lineStyle,
+            data: score,
+            symbol: 'none',
+            itemStyle: {
+              color: '#F9713C'
+            },
+            areaStyle: {
+              opacity: 0.1
+            }
+          },
+        ]
+      };
+    //   radarChart.setOption(radarOption)
+    // });
+
+    // // 总榜
+    // d3.json("../data/中国大学及评价.json").then(function(json) {
+        console.log(jsonData);
         var box = document.getElementById('maintable');
         var ul = document.getElementById('table');
-        for (var i = 0; i < json.length; i += 1) {
+        for (var i = 0; i < jsonData.length; i += 1) {
             var li = document.createElement('tr');
             li.className = "tr";
             ul.appendChild(li);
@@ -319,19 +420,19 @@
             var td = document.createElement('td');
             td.className = "td-rank";
             li.append(td);
-            td.innerHTML = "<p>" + json[i]["rank"]; + "</p>";
+            td.innerHTML = "<p>" + jsonData[i]["rank"]; + "</p>";
             td = document.createElement('td');
             td.className = "td-name";
             li.append(td);
-            td.innerHTML = "<p>" + json[i]["name"]; + "</p>";
+            td.innerHTML = "<p>" + jsonData[i]["name"]; + "</p>";
             td = document.createElement('td');
             td.className = "td-name-en";
             li.append(td);
-            td.innerHTML = "<p>" + json[i]["name-en"]; + "</p>";
+            td.innerHTML = "<p>" + jsonData[i]["name-en"]; + "</p>";
             td = document.createElement('td');
             td.className = "td-score";
             li.append(td);
-            td.innerHTML = "<p>" + json[i]["tot-score"]; + "</p>";
+            td.innerHTML = "<p>" + jsonData[i]["tot-score"]; + "</p>";
         }
         $(".tr").click(function() {
             schoolname = $(this).children("td")[1].textContent
@@ -427,7 +528,97 @@
             console.log(wordData);
             cloudOption.data = wordData;
             cloudChart.setOption(cloudOption);
-        })
+
+            var selected_data = jsonData.find(function (item) {
+                return item.name === schoolname;
+            });
+            console.log(selected_data);
+            var score = [[0, 0, 0, 0, 0, 0]];
+            if (selected_data.reception["教师投入"] != undefined) {
+                score = [[Number(selected_data.reception["教师投入"].slice(0, -1)),
+                Number(selected_data.reception["学习风气"].slice(0, -1)),
+                Number(selected_data.reception["硬件设施"].slice(0, -1)),
+                Number(selected_data.reception["奖助学金"].slice(0, -1)),
+                Number(selected_data.reception["校园生活"].slice(0, -1)),
+                Number(selected_data.reception["就业发展"].slice(0, -1))]];
+            }
+            console.log(score);
+            const lineStyle = {
+                width: 1,
+                opacity: 0.5
+            };
+            radarOption = {
+                backgroundColor: '#161627',
+                title: {
+                text: 'AQI - Radar',
+                left: 'center',
+                textStyle: {
+                    color: '#eee'
+                }
+                },
+                legend: {
+                bottom: 5,
+                data: ['Beijing', 'Shanghai', 'Guangzhou'],
+                itemGap: 20,
+                textStyle: {
+                    color: '#fff',
+                    fontSize: 14
+                },
+                selectedMode: 'single'
+                },
+                radar: {
+                indicator: [
+                    { name: '教师投入', max: 5 },
+                    { name: '学习风气', max: 5 },
+                    { name: '硬件设施', max: 5 },
+                    { name: '奖助学金', max: 5 },
+                    { name: '校园生活', max: 5 },
+                    { name: '就业发展', max: 5 }
+                ],
+                shape: 'circle',
+                splitNumber: 5,
+                axisName: {
+                    color: 'rgb(238, 197, 102)'
+                },
+                splitLine: {
+                    lineStyle: {
+                    color: [
+                        'rgba(238, 197, 102, 0.1)',
+                        'rgba(238, 197, 102, 0.2)',
+                        'rgba(238, 197, 102, 0.4)',
+                        'rgba(238, 197, 102, 0.6)',
+                        'rgba(238, 197, 102, 0.8)',
+                        'rgba(238, 197, 102, 1)'
+                    ].reverse()
+                    }
+                },
+                splitArea: {
+                    show: false
+                },
+                axisLine: {
+                    lineStyle: {
+                    color: 'rgba(238, 197, 102, 0.5)'
+                    }
+                }
+                },
+                series: [
+                {
+                    name: selected_data.name,
+                    type: 'radar',
+                    lineStyle: lineStyle,
+                    data: score,
+                    symbol: 'none',
+                    itemStyle: {
+                    color: '#F9713C'
+                    },
+                    areaStyle: {
+                    opacity: 0.1
+                    }
+                },
+                ]
+            };
+            radarChart.setOption(radarOption);
+        });
     });
 </script>
 </html>
