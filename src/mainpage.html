@@ -11,6 +11,7 @@
   <script src="echarts-wordcloud.js"></script>
   <script src="echarts-wordcloud.min.js"></script>
   <link rel="stylesheet" href="d3-tip.css">
+  <link rel="stylesheet" href="main1.css">
 </head>
 
 <body>
@@ -22,10 +23,10 @@
             <div id="lefttopdiv">
                 <p>a</p>
             </div>
-            <div id="leftmiddiv" style="background-color:pink;">
+            <div id="leftmiddiv">
                 <p>a</p>
             </div>
-            <div id="leftbotdiv" style="background-color:pink;">
+            <div id="leftbotdiv">
                 <p>a</p>
             </div>
         </div>
@@ -44,13 +45,13 @@
         </div>
 
         <div class="column">
-            <div id="righttopdiv" style="background-color:pink;">
+            <div id="righttopdiv">
                 <p>a</p>
             </div>
-            <div id="rightmiddiv" style="background-color:pink;">
+            <div id="rightmiddiv">
                 <p>a</p>
             </div>
-            <div id="rightbotdiv" style="background-color:pink;">
+            <div id="rightbotdiv">
                 <p>a</p>
             </div>
         </div>
@@ -58,361 +59,54 @@
 </body>
 
 <style type="text/css">
-    .header {
-        background-color: blue;
-        /* height: 12vh; */
-    }
-    .main {
-        display: flex;
-        height: 95vh;
-        margin-top: 3vh;
-    }
-    .main .column {
-        flex: 3;
-        background-color: green;
-    }
-    .main .column:nth-child(2) {
-        flex: 6;
-        margin: 1 0.125rem 0.1875rem;
-        overflow:auto;
-        background-color: red;
-    }
-    /* .main .column:nth-child(3) {
-        flex: 1;
-        background-color: gray;
-    } */
-    .column #lefttopdiv {
-        background-color: pink;
-        min-height: 30vh;
-    }
-    .column #leftmiddiv {
-        background-color: pink;
-        min-height: 30vh;
-    }
-    .column #leftbotdiv {
-        background-color: pink;
-        min-height: 30vh;
-    }
-    .column #righttopdiv {
-        background-color: pink;
-        min-height: 30vh;
-    }
-    .column #rightmiddiv {
-        background-color: pink;
-        min-height: 30vh;
-    }
-    .column #rightbotdiv {
-        background-color: pink;
-        min-height: 30vh;
-    }
-    .column #maintable {
-        font-size: 15px;
-        font-weight: bolder;
-        align-items: center;
-    }
-    .tr {
-        color: yellow;
-        text-align: center;
-    }
-    .tr:hover {
-        color: darkred;
-        /* text-align: center; */
-        background-color: orange;
-    }
-    .tr-clicked {
-        color: blue;
-        background-color: green;
-    }
-    .tr:focus {
-        color: blue;
-        background-color: gray;
-    }
-    .td-name {
-        border: 3px solid gold;
-    }
-    .td-name-en {
-        border: 3px solid gold;
-    }
-    .td-score {
-        border: 3px solid gold;
-    }
-    .td-rank {
-        border: 3px solid gold;
-    }
+    
 </style>
 <script>
-    var majorChart;
     var majorData;
-    var majorOption;
-    var cloudData;
-    var cloudOption;
+    var schoolData;
+    
+    var majorChart;
+    var cloudChart;
     var radarChart;
-    var radarOption;
+
+    var majorChart2;
+    var cloudChart2;
+    var radarChart2;
+
     // 专业比重
     var year = "2023"
-    var majorData = {};
-    var schoolname = "南开大学"
+    var schoolname = "南开大学";
+    var schoolname2 = "清华大学";
+
+    var prevTR;
+    var prevTR2;
     d3.json('../data/专业排名.json').then(function (jsonData) {
         majorData = jsonData;
-        var schoolselect = document.getElementById('leftmiddiv');
-        var target_school = majorData.find(function(item){
-            return item.name === schoolname
-        })
-        
-        var target_mode = target_school['ranked-disciplines']
-        
-        var Names = ['A+','A','A-','B+','B','B-','C+','C','C-']
-        var counts = [0,0,0,0,0,0,0,0,0]
-        target_mode.forEach(element => {
-            for(var i=0;i<9;i++){
-                if(element.rank === Names[i])counts[i] = counts[i]+1
-            }
-            return
-        });
+        majorChart = echarts.init(document.getElementById('lefttopdiv'));
+        majorChart2 = echarts.init(document.getElementById('righttopdiv'));
+        setMajor(majorChart, schoolname);
+        setMajor(majorChart2, schoolname2);
 
-        var fnames = []
-        var fcounts = []
-
-        for(var i=0;i<9;i++){
-            if(counts[i] != 0){
-                fnames.push(Names[i])
-                fcounts.push(counts[i])
-            }
-        }
-
-        var datas = []
-        for(var i=0;i<fnames.length;i++){
-            var data = {}
-            data['value'] = fcounts[i]
-            data['name'] = fnames[i]
-            datas.push(data)
-        }
-
-        majorChart = echarts.init(schoolselect);
-        majorOption = {
-            title: {
-                text: schoolname,
-                subtext: year,
-                left: 'center'
-            },
-            tooltip: {
-                trigger: 'item',
-                formatter: '{a} <br/>{b} : {c} ({d}%)'
-            },
-            legend: {
-                left: 'center',
-                top: 'bottom',
-                data: fnames
-            },
-            toolbox: {
-                show: true,
-                feature: {
-                mark: { show: true },
-                dataView: { show: true, readOnly: false },
-                restore: { show: true },
-                saveAsImage: { show: true }
-                }
-            },
-            series: [
-                {
-                name: 'Area Mode',
-                type: 'pie',
-                radius: [20, 100],
-                center: ['50%', '50%'],
-                roseType: 'radius',
-                itemStyle: {
-                    borderRadius: 5
-                },
-                data: datas
-                }
-            ]
-        };
-        majorOption && majorChart.setOption(majorOption);
-
-// 词云
-        var schoolselect = document.getElementById('lefttopdiv');
-        var target_school = jsonData.find(function (item) {
-            return item.name === schoolname
-        })
-
-        var target_mode = target_school['ranked-disciplines'];
-        var cnt = 0;
-        var value_range = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-'];
-
-        var disciplines_filtered = [];
-        for (i in target_mode) {
-            var item = target_mode[i];
-            if (item.rank == "A+" || item.rank == "A" || item.rank == "A-" || item.rank == "B+"
-            || item.rank == "B" || item.rank == "B-") {
-            disciplines_filtered.push(item);
-            }
-        }
-        wordData = disciplines_filtered.map(function (item) {
-            function get_weight(rank) {
-            if (rank == "A+") {
-                return 100;
-            }
-            else if (rank == "A") {
-                return 95;
-            }
-            else if (rank == "A-") {
-                return 90;
-            }
-            else if (rank == "B+") {
-                return 85;
-            }
-            else if (rank == "B") {
-                return 80;
-            }
-            else if (rank == "B-") {
-                return 75;
-            }
-            else if (rank == "C+") {
-                return 70;
-            }
-            return 60;
-            }
-            return {
-            name: item.class,
-            value: get_weight(item.rank)
-            }
-        })
-        console.log("here");
-        console.log(wordData);
-        cloudChart = echarts.init(schoolselect);
-
-        cloudOption = {
-            series: [{
-            type: "wordCloud",
-            shape: "circle",
-            gridSize: 10,
-            sizeRange: [6, 15],
-            rotationRange: [-90, 90],
-            textStyle: {
-                normal: {
-                fontFamily: "Arial, sans-serif",
-                color: function () {
-                    return 'rgb(' + [
-                    Math.round(Math.random() * 160),
-                    Math.round(Math.random() * 160),
-                    Math.round(Math.random() * 160)
-                    ].join(',') + ')';
-                }
-                }
-            },
-            emphasis: {
-                textStyle: {
-                fontWeight: "bold"
-                }
-            },
-            data: wordData
-            }]
-        };
-
-        cloudChart.setOption(cloudOption);
+    // 词云
+        cloudChart = echarts.init(document.getElementById('leftmiddiv'));
+        cloudChart2 = echarts.init(document.getElementById('rightmiddiv'));
+        setCloud(cloudChart, schoolname);
+        setCloud(cloudChart2, schoolname2);
     });
 
-// 雷达
+    // 雷达
     d3.json('../data/中国大学及评价.json').then(function (jsonData) {
-      var container = document.getElementById('leftbotdiv');
-      radarChart = echarts.init(container);
-      var selected_data = jsonData.find(function (item) {
-        return item.name === schoolname;
-      });
-      console.log(selected_data);
-      var score = [[0, 0, 0, 0, 0, 0]];
-      if (selected_data.reception["教师投入"] != undefined) {
-        score = [[Number(selected_data.reception["教师投入"].slice(0, -1)),
-        Number(selected_data.reception["学习风气"].slice(0, -1)),
-        Number(selected_data.reception["硬件设施"].slice(0, -1)),
-        Number(selected_data.reception["奖助学金"].slice(0, -1)),
-        Number(selected_data.reception["校园生活"].slice(0, -1)),
-        Number(selected_data.reception["就业发展"].slice(0, -1))]];
-      }
-      console.log(score);
-      const lineStyle = {
-        width: 1,
-        opacity: 0.5
-      };
-      radarOption = {
-        backgroundColor: '#161627',
-        title: {
-          text: 'AQI - Radar',
-          left: 'center',
-          textStyle: {
-            color: '#eee'
-          }
-        },
-        legend: {
-          bottom: 5,
-          data: ['Beijing', 'Shanghai', 'Guangzhou'],
-          itemGap: 20,
-          textStyle: {
-            color: '#fff',
-            fontSize: 14
-          },
-          selectedMode: 'single'
-        },
-        radar: {
-          indicator: [
-            { name: '教师投入', max: 5 },
-            { name: '学习风气', max: 5 },
-            { name: '硬件设施', max: 5 },
-            { name: '奖助学金', max: 5 },
-            { name: '校园生活', max: 5 },
-            { name: '就业发展', max: 5 }
-          ],
-          shape: 'circle',
-          splitNumber: 5,
-          axisName: {
-            color: 'rgb(238, 197, 102)'
-          },
-          splitLine: {
-            lineStyle: {
-              color: [
-                'rgba(238, 197, 102, 0.1)',
-                'rgba(238, 197, 102, 0.2)',
-                'rgba(238, 197, 102, 0.4)',
-                'rgba(238, 197, 102, 0.6)',
-                'rgba(238, 197, 102, 0.8)',
-                'rgba(238, 197, 102, 1)'
-              ].reverse()
-            }
-          },
-          splitArea: {
-            show: false
-          },
-          axisLine: {
-            lineStyle: {
-              color: 'rgba(238, 197, 102, 0.5)'
-            }
-          }
-        },
-        series: [
-          {
-            name: selected_data.name,
-            type: 'radar',
-            lineStyle: lineStyle,
-            data: score,
-            symbol: 'none',
-            itemStyle: {
-              color: '#F9713C'
-            },
-            areaStyle: {
-              opacity: 0.1
-            }
-          },
-        ]
-      };
-    //   radarChart.setOption(radarOption)
-    // });
+        schoolData = jsonData;
+        radarChart = echarts.init(document.getElementById('leftbotdiv'));
+        radarChart2 = echarts.init(document.getElementById('rightbotdiv'));
+        setRadar(radarChart, schoolname);
+        setRadar(radarChart2, schoolname2);
 
-    // // 总榜
-    // d3.json("../data/中国大学及评价.json").then(function(json) {
-        console.log(jsonData);
+    // 总榜
+        console.log(schoolData);
         var box = document.getElementById('maintable');
         var ul = document.getElementById('table');
-        for (var i = 0; i < jsonData.length; i += 1) {
+        for (var i = 0; i < schoolData.length; i += 1) {
             var li = document.createElement('tr');
             li.className = "tr";
             ul.appendChild(li);
@@ -420,205 +114,290 @@
             var td = document.createElement('td');
             td.className = "td-rank";
             li.append(td);
-            td.innerHTML = "<p>" + jsonData[i]["rank"]; + "</p>";
+            td.innerHTML = "<p>" + schoolData[i]["rank"]; + "</p>";
             td = document.createElement('td');
             td.className = "td-name";
             li.append(td);
-            td.innerHTML = "<p>" + jsonData[i]["name"]; + "</p>";
+            td.innerHTML = "<p>" + schoolData[i]["name"]; + "</p>";
             td = document.createElement('td');
             td.className = "td-name-en";
             li.append(td);
-            td.innerHTML = "<p>" + jsonData[i]["name-en"]; + "</p>";
+            td.innerHTML = "<p>" + schoolData[i]["name-en"]; + "</p>";
             td = document.createElement('td');
             td.className = "td-score";
             li.append(td);
-            td.innerHTML = "<p>" + jsonData[i]["tot-score"]; + "</p>";
+            td.innerHTML = "<p>" + schoolData[i]["tot-score"]; + "</p>";
         }
         $(".tr").click(function() {
-            schoolname = $(this).children("td")[1].textContent
+            schoolname2 = schoolname;
+            schoolname = $(this).children("td")[1].textContent;
             console.log(schoolname);
-            $(this).toggleClass("tr-clicked");
+            if (prevTR2) 
+            prevTR2.toggleClass("tr-clicked");
+            prevTR2 = prevTR;
+            prevTR = $(this);
+            // $(this).toggleClass("tr-clicked");
 
-            var target_school = majorData.find(function(item){
-                return item.name === schoolname
-            })
-            
-            var target_mode = target_school['ranked-disciplines']
-            
-            var Names = ['A+','A','A-','B+','B','B-','C+','C','C-']
-            var counts = [0,0,0,0,0,0,0,0,0]
-            target_mode.forEach(element => {
-                for(var i=0;i<9;i++){
-                    if(element.rank === Names[i])counts[i] = counts[i]+1
-                    // if(element.rank === 'B')console.log(element.class)
-                }
-                return
-            });
+            setMajor(majorChart, schoolname);
+            setMajor(majorChart2, schoolname2);
 
-            var fnames = []
-            var fcounts = []
+            setCloud(cloudChart, schoolname);
+            setCloud(cloudChart2, schoolname2);
 
-            for(var i=0;i<9;i++){
-                if(counts[i] != 0){
-                    fnames.push(Names[i])
-                    fcounts.push(counts[i])
-                }
-            }
+            setRadar(radarChart, schoolname);
+            setRadar(radarChart2, schoolname2);
 
-            var datas = []
-            for(var i=0;i<fnames.length;i++){
-                var data = {}
-                data['value'] = fcounts[i]
-                data['name'] = fnames[i]
-                datas.push(data)
-            }
-
-            
-            majorOption.title.text = schoolname;
-            majorOption.series[0].data = datas;
-            majorChart.setOption(majorOption);
-
-
-            var target_school = majorData.find(function (item) {
-                return item.name === schoolname
-            })
-
-            var target_mode = target_school['ranked-disciplines'];
-            var cnt = 0;
-            var value_range = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-'];
-
-            var disciplines_filtered = [];
-            for (i in target_mode) {
-                var item = target_mode[i];
-                if (item.rank == "A+" || item.rank == "A" || item.rank == "A-" || item.rank == "B+"
-                || item.rank == "B" || item.rank == "B-") {
-                disciplines_filtered.push(item);
-                }
-            }
-            wordData = disciplines_filtered.map(function (item) {
-                function get_weight(rank) {
-                if (rank == "A+") {
-                    return 100;
-                }
-                else if (rank == "A") {
-                    return 95;
-                }
-                else if (rank == "A-") {
-                    return 90;
-                }
-                else if (rank == "B+") {
-                    return 85;
-                }
-                else if (rank == "B") {
-                    return 80;
-                }
-                else if (rank == "B-") {
-                    return 75;
-                }
-                else if (rank == "C+") {
-                    return 70;
-                }
-                return 60;
-                }
-                return {
-                name: item.class,
-                value: get_weight(item.rank)
-                }
-            })
-            console.log(wordData);
-            cloudOption.data = wordData;
-            cloudChart.setOption(cloudOption);
-
-            var selected_data = jsonData.find(function (item) {
-                return item.name === schoolname;
-            });
-            console.log(selected_data);
-            var score = [[0, 0, 0, 0, 0, 0]];
-            if (selected_data.reception["教师投入"] != undefined) {
-                score = [[Number(selected_data.reception["教师投入"].slice(0, -1)),
-                Number(selected_data.reception["学习风气"].slice(0, -1)),
-                Number(selected_data.reception["硬件设施"].slice(0, -1)),
-                Number(selected_data.reception["奖助学金"].slice(0, -1)),
-                Number(selected_data.reception["校园生活"].slice(0, -1)),
-                Number(selected_data.reception["就业发展"].slice(0, -1))]];
-            }
-            console.log(score);
-            const lineStyle = {
-                width: 1,
-                opacity: 0.5
-            };
-            radarOption = {
-                backgroundColor: '#161627',
-                title: {
-                text: 'AQI - Radar',
-                left: 'center',
-                textStyle: {
-                    color: '#eee'
-                }
-                },
-                legend: {
-                bottom: 5,
-                data: ['Beijing', 'Shanghai', 'Guangzhou'],
-                itemGap: 20,
-                textStyle: {
-                    color: '#fff',
-                    fontSize: 14
-                },
-                selectedMode: 'single'
-                },
-                radar: {
-                indicator: [
-                    { name: '教师投入', max: 5 },
-                    { name: '学习风气', max: 5 },
-                    { name: '硬件设施', max: 5 },
-                    { name: '奖助学金', max: 5 },
-                    { name: '校园生活', max: 5 },
-                    { name: '就业发展', max: 5 }
-                ],
-                shape: 'circle',
-                splitNumber: 5,
-                axisName: {
-                    color: 'rgb(238, 197, 102)'
-                },
-                splitLine: {
-                    lineStyle: {
-                    color: [
-                        'rgba(238, 197, 102, 0.1)',
-                        'rgba(238, 197, 102, 0.2)',
-                        'rgba(238, 197, 102, 0.4)',
-                        'rgba(238, 197, 102, 0.6)',
-                        'rgba(238, 197, 102, 0.8)',
-                        'rgba(238, 197, 102, 1)'
-                    ].reverse()
-                    }
-                },
-                splitArea: {
-                    show: false
-                },
-                axisLine: {
-                    lineStyle: {
-                    color: 'rgba(238, 197, 102, 0.5)'
-                    }
-                }
-                },
-                series: [
-                {
-                    name: selected_data.name,
-                    type: 'radar',
-                    lineStyle: lineStyle,
-                    data: score,
-                    symbol: 'none',
-                    itemStyle: {
-                    color: '#F9713C'
-                    },
-                    areaStyle: {
-                    opacity: 0.1
-                    }
-                },
-                ]
-            };
-            radarChart.setOption(radarOption);
+            // highlightTR(schoolname);
+            // highlightTR(schoolname2);
+            prevTR.toggleClass("tr-clicked");
         });
     });
+function setMajor(chart, name) {
+    var target_school = majorData.find(function(item){
+        return item.name === name;
+    })
+    
+    var target_mode = target_school['ranked-disciplines']
+    
+    var Names = ['A+','A','A-','B+','B','B-','C+','C','C-']
+    var counts = [0,0,0,0,0,0,0,0,0]
+    target_mode.forEach(element => {
+        for(var i=0;i<9;i++){
+            if(element.rank === Names[i])counts[i] = counts[i]+1
+        }
+        return
+    });
+
+    var fnames = []
+    var fcounts = []
+
+    for(var i=0;i<9;i++){
+        if(counts[i] != 0){
+            fnames.push(Names[i])
+            fcounts.push(counts[i])
+        }
+    }
+
+    var datas = []
+    for(var i=0;i<fnames.length;i++){
+        var data = {}
+        data['value'] = fcounts[i]
+        data['name'] = fnames[i]
+        datas.push(data)
+    }
+
+    majorOption = {
+        title: {
+            text: name,
+            subtext: year,
+            left: 'center'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend: {
+            left: 'center',
+            top: 'bottom',
+            data: [],
+        },
+        toolbox: {
+            show: false,
+            feature: {
+            mark: { show: true },
+            dataView: { show: true, readOnly: false },
+            restore: { show: true },
+            saveAsImage: { show: true }
+            }
+        },
+        series: [
+            {
+            name: 'Area Mode',
+            type: 'pie',
+            radius: [20, 100],
+            center: ['50%', '50%'],
+            roseType: 'radius',
+            itemStyle: {
+                borderRadius: 5
+            },
+            data: []
+            }
+        ]
+    };
+    
+    majorOption.title.text = name;
+    majorOption.series[0].data = datas;
+    chart.setOption(majorOption);
+}
+function setCloud(chart, name) {
+    var target_school = majorData.find(function (item) {
+        return item.name === name;
+    })
+
+    var target_mode = target_school['ranked-disciplines'];
+    var cnt = 0;
+    var value_range = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-'];
+
+    var disciplines_filtered = [];
+    for (i in target_mode) {
+        var item = target_mode[i];
+        if (item.rank == "A+" || item.rank == "A" || item.rank == "A-" || item.rank == "B+"
+        || item.rank == "B" || item.rank == "B-") {
+        disciplines_filtered.push(item);
+        }
+    }
+    var wordData = disciplines_filtered.map(function (item) {
+        function get_weight(rank) {
+        if (rank == "A+") {
+            return 100;
+        }
+        else if (rank == "A") {
+            return 95;
+        }
+        else if (rank == "A-") {
+            return 90;
+        }
+        else if (rank == "B+") {
+            return 85;
+        }
+        else if (rank == "B") {
+            return 80;
+        }
+        else if (rank == "B-") {
+            return 75;
+        }
+        else if (rank == "C+") {
+            return 70;
+        }
+        return 60;
+        }
+        return {
+        name: item.class,
+        value: get_weight(item.rank)
+        }
+    })
+    cloudOption = {
+        series: [{
+        type: "wordCloud",
+        shape: "circle",
+        gridSize: 10,
+        sizeRange: [6, 15],
+        rotationRange: [-90, 90],
+        textStyle: {
+            normal: {
+            fontFamily: "Arial, sans-serif",
+            color: function () {
+                return 'rgb(' + [
+                Math.round(Math.random() * 160),
+                Math.round(Math.random() * 160),
+                Math.round(Math.random() * 160)
+                ].join(',') + ')';
+            }
+            }
+        },
+        emphasis: {
+            textStyle: {
+            fontWeight: "bold"
+            }
+        },
+        data: wordData
+        }]
+    };
+    console.log("cloud")
+    console.log(wordData);
+    cloudOption.data = wordData;
+    chart.setOption(cloudOption);
+}
+function setRadar(chart, name) {
+
+    var selected_data = schoolData.find(function (item) {
+        return item.name === name;
+    });
+    console.log(selected_data);
+    var score = [[0, 0, 0, 0, 0, 0]];
+    if (selected_data.reception["教师投入"] != undefined) {
+        score = [[Number(selected_data.reception["教师投入"].slice(0, -1)),
+        Number(selected_data.reception["学习风气"].slice(0, -1)),
+        Number(selected_data.reception["硬件设施"].slice(0, -1)),
+        Number(selected_data.reception["奖助学金"].slice(0, -1)),
+        Number(selected_data.reception["校园生活"].slice(0, -1)),
+        Number(selected_data.reception["就业发展"].slice(0, -1))]];
+    }
+    console.log(score);
+    const lineStyle = {
+        width: 1,
+        opacity: 0.5
+    };
+    radarOption = {
+        title: {
+        text: '',
+        left: 'center',
+        textStyle: {
+            color: '#eee'
+        }
+        },
+        legend: {
+        bottom: 5,
+        data: ['Beijing', 'Shanghai', 'Guangzhou'],
+        itemGap: 20,
+        textStyle: {
+            color: '#fff',
+            fontSize: 14
+        },
+        selectedMode: 'single'
+        },
+        radar: {
+        indicator: [
+            { name: '教师投入', max: 5 },
+            { name: '学习风气', max: 5 },
+            { name: '硬件设施', max: 5 },
+            { name: '奖助学金', max: 5 },
+            { name: '校园生活', max: 5 },
+            { name: '就业发展', max: 5 }
+        ],
+        shape: 'circle',
+        splitNumber: 5,
+        axisName: {
+            color: 'rgb(20, 60, 150)'
+        },
+        splitLine: {
+            lineStyle: {
+            color: [
+                'rgba(20, 60, 150, 0.1)',
+                'rgba(20, 60, 150, 0.2)',
+                'rgba(20, 60, 150, 0.4)',
+                'rgba(20, 60, 150, 0.6)',
+                'rgba(20, 60, 150, 0.8)',
+                'rgba(20, 60, 150, 1)'
+            ].reverse()
+            }
+        },
+        splitArea: {
+            show: false
+        },
+        axisLine: {
+            lineStyle: {
+            color: 'rgba(20, 60, 150, 0.5)'
+            }
+        }
+        },
+        series: [
+        {
+            name: selected_data.name,
+            type: 'radar',
+            lineStyle: lineStyle,
+            data: score,
+            symbol: 'none',
+            itemStyle: {
+            color: '#F9713C'
+            },
+            areaStyle: {
+            opacity: 0.1
+            }
+        },
+        ]
+    };
+    chart.setOption(radarOption);
+}
 </script>
 </html>

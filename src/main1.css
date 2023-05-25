@@ -1,0 +1,81 @@
+.header {
+    background-color: blue;
+    /* height: 12vh; */
+}
+.main {
+    display: flex;
+    height: 95vh;
+    margin-top: 3vh;
+}
+.main .column {
+    flex: 3;
+    background-color: green;
+}
+.main .column:nth-child(2) {
+    flex: 6;
+    margin: 1 0.125rem 0.1875rem;
+    overflow:auto;
+    background-color: red;
+}
+/* .main .column:nth-child(3) {
+    flex: 1;
+    background-color: gray;
+} */
+.column #lefttopdiv {
+    background-color: pink;
+    min-height: 30vh;
+}
+.column #leftmiddiv {
+    background-color: pink;
+    min-height: 30vh;
+}
+.column #leftbotdiv {
+    background-color: pink;
+    min-height: 30vh;
+}
+.column #righttopdiv {
+    background-color: pink;
+    min-height: 30vh;
+}
+.column #rightmiddiv {
+    background-color: pink;
+    min-height: 30vh;
+}
+.column #rightbotdiv {
+    background-color: pink;
+    min-height: 30vh;
+}
+.column #maintable {
+    font-size: 15px;
+    font-weight: bolder;
+    align-items: center;
+}
+.tr {
+    color: yellow;
+    text-align: center;
+}
+.tr:hover {
+    color: darkred;
+    /* text-align: center; */
+    background-color: orange;
+}
+.tr-clicked {
+    color: blue;
+    background-color: green;
+}
+.tr:focus {
+    color: blue;
+    background-color: gray;
+}
+.td-name {
+    border: 3px solid gold;
+}
+.td-name-en {
+    border: 3px solid gold;
+}
+.td-score {
+    border: 3px solid gold;
+}
+.td-rank {
+    border: 3px solid gold;
+}
