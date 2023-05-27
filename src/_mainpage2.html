@@ -40,6 +40,14 @@
         <div class="column">
             <div id="maintable"></div>
             <table id="table">
+                <tr>
+                    <select title="地区" id="provselect" class="tselect">
+                        <option>地区</option>
+                    </select>
+                    <select title="类型" id="typeselect" class="tselect">
+                        <option>类型</option>
+                    </select>
+                </tr>
                 <tr class="th">
                 <th>排名</th>
                 <th>学校</th>
@@ -68,6 +76,17 @@
     
 </style>
 <script>
+    var provinces = [
+        '北京', '天津', '河北', '山西', '内蒙古', '辽宁', '吉林', '黑龙江', '上海',
+        '江苏', '浙江', '安徽', '福建', '江西',   '山东', '河南', '湖北',
+        '湖南', '广东', '广西', '海南', '重庆',   '四川', '贵州', '云南',
+        '西藏', '陕西', '甘肃', '青海', '宁夏',   '新疆'
+    ];
+    var types = ["综合", "理工", "师范", "农业", "林业"];
+
+    var prov = "地区";
+    var type = "类型";
+    
     var majorData;
     var schoolData;
     
@@ -100,6 +119,30 @@
         setCloud(cloudChart2, schoolname2);
     });
 
+    // 筛选
+    var pselect = document.getElementById('provselect');
+    for (var i = 0; i < provinces.length; i += 1) {
+        var op = document.createElement('option');
+        op.className = "op_prov";
+        op.text=provinces[i];
+        pselect.appendChild(op);
+    }
+    $("#provselect").change(function() {
+        prov = $("#provselect option:selected").text();
+        setMain();
+    });
+    var tselect = document.getElementById('typeselect');
+    for (var i = 0; i < types.length; i += 1) {
+        var op = document.createElement('option');
+        op.className = "op_type";
+        op.text=types[i];
+        tselect.appendChild(op);
+    }
+    $("#typeselect").change(function() {
+        type = $("#typeselect option:selected").text();
+        setMain();
+    });
+
     // 雷达
     d3.json('../data/中国大学及评价.json').then(function (jsonData) {
         schoolData = jsonData;
@@ -108,55 +151,7 @@
         setRadar(radarChart, schoolname);
         setRadar(radarChart2, schoolname2);
 
-    // 总榜
-        console.log(schoolData);
-        var box = document.getElementById('maintable');
-        var ul = document.getElementById('table');
-        for (var i = 0; i < schoolData.length; i += 1) {
-            var li = document.createElement('tr');
-            li.className = "tr";
-            ul.appendChild(li);
-            
-            var td = document.createElement('td');
-            td.className = "td-rank";
-            li.append(td);
-            td.innerHTML = "<p>" + schoolData[i]["rank"]; + "</p>";
-            td = document.createElement('td');
-            td.className = "td-name";
-            li.append(td);
-            td.innerHTML = "<p>" + schoolData[i]["name"]; + "</p>";
-            td = document.createElement('td');
-            td.className = "td-name-en";
-            li.append(td);
-            td.innerHTML = "<p>" + schoolData[i]["name-en"]; + "</p>";
-            td = document.createElement('td');
-            td.className = "td-score";
-            li.append(td);
-            td.innerHTML = "<p>" + schoolData[i]["tot-score"]; + "</p>";
-        }
-        $(".tr").click(function() {
-            schoolname2 = schoolname;
-            schoolname = $(this).children("td")[1].textContent;
-            console.log(schoolname);
-            if (prevTR2) 
-            prevTR2.toggleClass("tr-clicked");
-            prevTR2 = prevTR;
-            prevTR = $(this);
-            // $(this).toggleClass("tr-clicked");
-
-            setMajor(majorChart, schoolname);
-            setMajor(majorChart2, schoolname2);
-
-            setCloud(cloudChart, schoolname);
-            setCloud(cloudChart2, schoolname2);
-
-            setRadar(radarChart, schoolname);
-            setRadar(radarChart2, schoolname2);
-
-            // highlightTR(schoolname);
-            // highlightTR(schoolname2);
-            prevTR.toggleClass("tr-clicked");
-        });
+        setMain();
     });
 function setMajor(chart, name) {
     var target_school = majorData.find(function(item){
@@ -405,5 +400,62 @@ function setRadar(chart, name) {
     };
     chart.setOption(radarOption);
 }
+function setMain() {
+    // 总榜
+    console.log("here");
+    console.log(prov);
+    console.log(type);
+    $("#table").empty();
+    var box = document.getElementById('maintable');
+    var ul = document.getElementById('table');
+    for (var i = 0; i < schoolData.length; i += 1) {
+        if (prov != "地区" && schoolData[i]["province"] != prov) continue;
+        if (type != "类型" && schoolData[i]["type"] != type) continue;
+        var li = document.createElement('tr');
+        li.className = "tr";
+        ul.appendChild(li);
+        
+        var td = document.createElement('td');
+        td.className = "td-rank";
+        li.append(td);
+        td.innerHTML = "<p>" + schoolData[i]["rank"]; + "</p>";
+        td = document.createElement('td');
+        td.className = "td-name";
+        li.append(td);
+        td.innerHTML = "<p>" + schoolData[i]["name"]; + "</p>";
+        td = document.createElement('td');
+        td.className = "td-name-en";
+        li.append(td);
+        td.innerHTML = "<p>" + schoolData[i]["name-en"]; + "</p>";
+        td = document.createElement('td');
+        td.className = "td-score";
+        li.append(td);
+        td.innerHTML = "<p>" + schoolData[i]["tot-score"]; + "</p>";
+    }
+    $(".tr").click(function() {
+        schoolname2 = schoolname;
+        schoolname = $(this).children("td")[1].textContent;
+        console.log(schoolname);
+        if (prevTR2) 
+        prevTR2.toggleClass("tr-clicked");
+        prevTR2 = prevTR;
+        prevTR = $(this);
+        // $(this).toggleClass("tr-clicked");
+
+        setMajor(majorChart, schoolname);
+        setMajor(majorChart2, schoolname2);
+
+        setCloud(cloudChart, schoolname);
+        setCloud(cloudChart2, schoolname2);
+
+        setRadar(radarChart, schoolname);
+        setRadar(radarChart2, schoolname2);
+
+        // highlightTR(schoolname);
+        // highlightTR(schoolname2);
+        prevTR.toggleClass("tr-clicked");
+    });
+}
+
 </script>
 </html>

@@ -48,6 +48,12 @@
     font-weight: bolder;
     align-items: center;
 }
+.tselect {
+    background-color: #146C94ff;
+    color: #FEFF86d3;
+    font-size: large;
+    text-align: center;
+}
 .th {
     color: #FEFF86d3;
     font-size: large;
