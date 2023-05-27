@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>MainPage</title>
+    <title>MapPage</title>
     <script src="d3.min.js"></script>
     <script src="d3-v6-tip.js"></script>
     <script src="jquery-3.4.1.min.js"></script>
@@ -27,15 +27,18 @@
         </div>
 
         <div class="column">
-            <div id="righttopdiv">
-                <p>a</p>
-            </div>
-            <div id="rightmiddiv">
-                <p>a</p>
-            </div>
-            <div id="rightbotdiv">
-                <p>a</p>
-            </div>
+            <div id="maintable"></div>
+            <table id="table">
+                <tr class="th">
+                <th>排名</th>
+                <th>学校</th>
+                <th>英文名</th>
+                <th>类别</th>
+                <th>类型</th>
+                <th>总分</th>
+                </tr>
+                <!-- </th> -->
+            </table>
         </div>
     </section>
 </body>
@@ -44,11 +47,17 @@
 
 </style>
 <script>
+    var prov = "";
+    var schoolData;
+
     var dom = document.getElementById('maintable');
     var myChart = echarts.init(dom);
     var school_type = "double"
     d3.json('chinamap_sample.json').then(function (geoJson) {
         echarts.registerMap('china', geoJson);
+    });
+    d3.json('../data/中国大学及评价.json').then(function (jsonData) {
+        schoolData = jsonData;
     });
     d3.json('../data/专业排名.json').then(function (jsonData) {
         var schoolselect = document.getElementById('container');
@@ -149,7 +158,6 @@
                 data: datas,
             }]
         };
-        console.log(datas);
         myChart.on('click', function (params) {
             if (params.componentType === 'series') {
                 // 判断点击的组件类型为 series（系列）
@@ -162,8 +170,58 @@
         myChart.setOption(option);
     });
     function display(name) {
-        console.log(name);
+        prov = name;
+        setMain();
     }
+function setMain() {
+    // 总榜
+    $(".tr").remove();
+    var ul = document.getElementById('table');
+    for (var i = 0; i < schoolData.length; i += 1) {
+        if (prov != "地区" && schoolData[i]["province"] != prov) continue;
+        var li = document.createElement('tr');
+        li.className = "tr";
+        ul.appendChild(li);
+        
+        var td = document.createElement('td');
+        td.className = "td-rank";
+        li.append(td);
+        td.innerHTML = "<p>" + schoolData[i]["rank"]; + "</p>";
+        td = document.createElement('td');
+        td.className = "td-name";
+        li.append(td);
+        td.innerHTML = "<p>" + schoolData[i]["name"]; + "</p>";
+        td = document.createElement('td');
+        td.className = "td-name-en";
+        li.append(td);
+        td.innerHTML = "<p>" + schoolData[i]["name-en"]; + "</p>";
+        td = document.createElement('td');
+        td.className = "td-class";
+        li.append(td);
+        td.innerHTML = "<p>" + schoolData[i]["class"]; + "</p>";
+        td = document.createElement('td');
+        td.className = "td-type";
+        li.append(td);
+        td.innerHTML = "<p>" + schoolData[i]["type"]; + "</p>";
+        td = document.createElement('td');
+        td.className = "td-score";
+        li.append(td);
+        td.innerHTML = "<p>" + schoolData[i]["tot-score"]; + "</p>";
+    }
+    $(".tr").click(function() {
+        schoolname = $(this).children("td")[1].textContent;
+        console.log(schoolname);
+        $(this).toggleClass("tr-clicked");
+        if (prevTR) prevTR.toggleClass("tr-clicked");
+        prevTR = $(this);
+
+        // setMajor(majorChart, schoolname);
+
+        // setCloud(cloudChart, schoolname);
+
+        // setRadar(radarChart, schoolname);
+    });
+}
 </script>
 
 </html>

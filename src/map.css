@@ -1,5 +1,6 @@
 .body {
     background-color: #146C94c0;
+    overflow:hidden;
 }
 .header {
 }
@@ -33,17 +34,53 @@
 .column #leftbotdiv {
     min-height: 30vh;
 }
-.column #righttopdiv {
+/* .column #righttopdiv {
     min-height: 30vh;
-}
+} */
 .column #rightmiddiv {
     min-height: 30vh;
 }
-.column #rightbotdiv {
+/* .column #rightbotdiv {
     min-height: 30vh;
-}
+} */
 .column #maintable {
     font-size: 15px;
     font-weight: bolder;
     align-items: center;
+}
+.th {
+    color: #FEFF86d3;
+    font-size: large;
+    text-align: center;
+}
+.tr {
+    color: #FEFF86d3;
+    text-align: center;
+}
+.tr:hover {
+    color: #FEFF8680;
+    /* text-align: center; */
+    background-color: #146C94ff;
+}
+.tr-clicked {
+    color: #146C94f5;
+    background-color: #FEFF8653;
+}
+.td-name {
+    border: 2px solid #FEFF8651;
+}
+.td-name-en {
+    border: 2px solid #FEFF8651;
+}
+.td-score {
+    border: 2px solid #FEFF8651;
+}
+.td-rank {
+    border: 2px solid #FEFF8651;
+}
+.td-class {
+    border: 2px solid #FEFF8651;
+}
+.td-type {
+    border: 2px solid #FEFF8651;
 }

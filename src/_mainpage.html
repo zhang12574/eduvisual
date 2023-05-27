@@ -389,7 +389,8 @@ function setRadar(chart, name) {
 }
 function setMain() {
     // 总榜
-    $("#table").empty();
+    // $("#table").empty();
+    $(".tr").remove();
     // var box = document.getElementById('maintable');
     var ul = document.getElementById('table');
     for (var i = 0; i < schoolData.length; i += 1) {
