@@ -161,7 +161,6 @@ function setMajor(chart, name) {
     target_mode.forEach(element => {
         for(var i=0;i<9;i++){
             if(element.rank === Names[i])counts[i] = counts[i]+1
-            console.log(element.rank)
         }
         return
     });
@@ -229,9 +228,14 @@ function setMajor(chart, name) {
     chart.setOption(majorOption);
 }
 function setCloud(chart, name) {
-    var target_school = majorData.find(function (item) {
+    var target_school = majorData.find(function(item){
         return item.name === name;
     })
+    var target_school2 = majorData2.find(function(item){
+        return item.name === name;
+    })
+    if (target_school['ranked-disciplines'].length < target_school2['ranked-disciplines'].length) target_school = target_school2;
+
 
     var target_mode = target_school['ranked-disciplines'];
     var cnt = 0;
@@ -308,10 +312,9 @@ function setCloud(chart, name) {
     chart.setOption(cloudOption);
 }
 function setRadar(chart, name) {
-
-    var selected_data = schoolData.find(function (item) {
+    var selected_data = schoolData.find(function(item){
         return item.name === name;
-    });
+    })
     console.log(selected_data);
     var score = [[0, 0, 0, 0, 0, 0]];
     if (selected_data.reception["教师投入"] != undefined) {
