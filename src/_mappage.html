@@ -23,7 +23,7 @@
     </div>
     <section class="main">
         <div class="column">
-            <div id="maintable" style="height: 90vh; width: 40vw;"></div>
+            <div id="maptable" style="height: 90vh; width: 40vw;"></div>
         </div>
 
         <div class="column">
@@ -50,7 +50,7 @@
     var prov = "";
     var schoolData;
 
-    var dom = document.getElementById('maintable');
+    var dom = document.getElementById('maptable');
     var myChart = echarts.init(dom);
     var school_type = "double"
     d3.json('chinamap_sample.json').then(function (geoJson) {
