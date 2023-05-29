@@ -103,11 +103,12 @@
             setMajor(majorChart, schoolname);
 
     // 词云
-        cloudChart = echarts.init(document.getElementById('leftmiddiv'));
-        setCloud(cloudChart, schoolname);
-        
-        circleChart = echarts.init(document.getElementById('rightmiddiv'));
-        setCircle(circleChart, schoolname);
+            cloudChart = echarts.init(document.getElementById('leftmiddiv'));
+            setCloud(cloudChart, schoolname);
+            
+            circleChart = echarts.init(document.getElementById('rightmiddiv'));
+            setCircle(circleChart, schoolname);
+        });
     });
 
     // 筛选
@@ -435,9 +436,12 @@ function setCircle(chart, name) {
     var_major["B+"] = "10%"
     var_major["B"] = "15%"
     var target_school = majorData.find(function(item){
-        return item.name === name
+        return item.name === name;
     })
-    
+    var target_school2 = majorData2.find(function(item){
+        return item.name === name;
+    })
+    if (target_school['ranked-disciplines'].length < target_school2['ranked-disciplines'].length) target_school = target_school2;
     var target_mode = target_school['ranked-disciplines']
     
     // var Names = ['A+','A','A-','B+','B','B-','C+','C','C-']
@@ -450,7 +454,10 @@ function setCircle(chart, name) {
     }
     
     target_mode.forEach(element => {
-        var index_temp = parseInt(element.name.substring(0,2))
+        console.log(element.name)
+        var index_temp;
+        if (element.name.length >= 6) index_temp = parseInt(element.name.substring(0,2))
+        else if (element.name.length == 5) index_temp = parseInt(element.name.substring(0,1))
         if(!isNaN(index_temp)){
             counts[index_temp] += 1
             majors[index_temp].push(element.class)

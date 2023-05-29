@@ -88,6 +88,7 @@
     var type = "类型";
     
     var majorData;
+    var majorData2;
     var schoolData;
     
     var majorChart;
@@ -105,18 +106,21 @@
 
     var prevTR;
     var prevTR2;
-    d3.json('../data/专业排名.json').then(function (jsonData) {
-        majorData = jsonData;
-        majorChart = echarts.init(document.getElementById('lefttopdiv'));
-        majorChart2 = echarts.init(document.getElementById('righttopdiv'));
-        setMajor(majorChart, schoolname);
-        setMajor(majorChart2, schoolname2);
+    d3.json('../data/专业排名_ADD.json').then(function (jsonData2) {
+        majorData2 = jsonData2;
+        d3.json('../data/专业排名.json').then(function (jsonData) {
+            majorData = jsonData;
+            majorChart = echarts.init(document.getElementById('lefttopdiv'));
+            majorChart2 = echarts.init(document.getElementById('righttopdiv'));
+            setMajor(majorChart, schoolname);
+            setMajor(majorChart2, schoolname2);
 
-    // 词云
-        cloudChart = echarts.init(document.getElementById('leftmiddiv'));
-        cloudChart2 = echarts.init(document.getElementById('rightmiddiv'));
-        setCloud(cloudChart, schoolname);
-        setCloud(cloudChart2, schoolname2);
+        // 词云
+            cloudChart = echarts.init(document.getElementById('leftmiddiv'));
+            cloudChart2 = echarts.init(document.getElementById('rightmiddiv'));
+            setCloud(cloudChart, schoolname);
+            setCloud(cloudChart2, schoolname2);
+        });
     });
 
     // 筛选
@@ -157,6 +161,10 @@ function setMajor(chart, name) {
     var target_school = majorData.find(function(item){
         return item.name === name;
     })
+    var target_school2 = majorData2.find(function(item){
+        return item.name === name;
+    })
+    if (target_school['ranked-disciplines'].length < target_school2['ranked-disciplines'].length) target_school = target_school2;
     
     var target_mode = target_school['ranked-disciplines']
     
@@ -231,9 +239,13 @@ function setMajor(chart, name) {
     chart.setOption(majorOption);
 }
 function setCloud(chart, name) {
-    var target_school = majorData.find(function (item) {
+    var target_school = majorData.find(function(item){
         return item.name === name;
     })
+    var target_school2 = majorData2.find(function(item){
+        return item.name === name;
+    })
+    if (target_school['ranked-disciplines'].length < target_school2['ranked-disciplines'].length) target_school = target_school2;
 
     var target_mode = target_school['ranked-disciplines'];
     var cnt = 0;
