@@ -11,7 +11,7 @@
   <script src="echarts-wordcloud.js"></script>
   <script src="echarts-wordcloud.min.js"></script>
   <link rel="stylesheet" href="d3-tip.css">
-  <link rel="stylesheet" href="main3.css">
+  <link rel="stylesheet" href="main1.css">
 </head>
 
 <body class = "body">
@@ -24,18 +24,6 @@
         <a href="_mappage.html" style="font-size: medium;">各省对比</a>
     </div>
     <section class="main">
-        <div class="column">
-            <div id="lefttopdiv">
-                <p>a</p>
-            </div>
-            <div id="leftmiddiv">
-                <p>a</p>
-            </div>
-            <div id="leftbotdiv">
-                <p>a</p>
-            </div>
-        </div>
-
         <div class="column">
             <div id="maintable"></div>
             <table id="table">
@@ -58,16 +46,22 @@
         </div>
 
         <div class="column">
-            <div id="righttopdiv">
-                <p>a</p>
-            </div>
             <div id="rightmiddiv">
                 <p>a</p>
             </div>
-            <div id="rightbotdiv">
+        </div>
+        <div class="column">
+            <div id="lefttopdiv">
+                <p>a</p>
+            </div>
+            <div id="leftmiddiv">
+                <p>a</p>
+            </div>
+            <div id="leftbotdiv">
                 <p>a</p>
             </div>
         </div>
+
     </section>
 </body>
 
@@ -92,6 +86,7 @@
     var majorChart;
     var cloudChart;
     var radarChart;
+    var circleChart;
 
     // 专业比重
     var year = "2023"
@@ -106,6 +101,9 @@
     // 词云
         cloudChart = echarts.init(document.getElementById('leftmiddiv'));
         setCloud(cloudChart, schoolname);
+
+        circleChart = echarts.init(document.getElementById('rightmiddiv'));
+        setCircle(circleChart, schoolname);
     });
 
     // 筛选
@@ -175,11 +173,6 @@ function setMajor(chart, name) {
     }
 
     majorOption = {
-        title: {
-            text: name,
-            subtext: year,
-            left: 'center'
-        },
         tooltip: {
             trigger: 'item',
             formatter: '{a} <br/>{b} : {c} ({d}%)'
@@ -208,13 +201,11 @@ function setMajor(chart, name) {
             itemStyle: {
                 borderRadius: 5
             },
-            data: []
+            data: datas
             }
         ]
     };
     
-    majorOption.title.text = name;
-    majorOption.series[0].data = datas;
     chart.setOption(majorOption);
 }
 function setCloud(chart, name) {
@@ -387,6 +378,246 @@ function setRadar(chart, name) {
     };
     chart.setOption(radarOption);
 }
+function setCircle(chart, name) {
+    const colors = ['#FFAE57', '#FF7853', '#EA5151', '#CC3F57', '#9A2555'];
+    const bgColor = '#146c94';
+    const itemStyle = {
+        star5: {
+            color: colors[0]
+        },
+        star4: {
+            color: colors[1]
+        },
+        star3: {
+            color: colors[2]
+        },
+        star2: {
+            color: colors[3]
+        }
+    };
+    var major_map = Array(14).fill("")
+    var major_type = {}
+    var major_trans = {}
+    var var_major = {}
+    major_map[1] = "哲学"
+    major_map[2] = "经济学"
+    major_map[3] = "法学"
+    major_map[4] = "教育学"
+    major_map[5] = "文学"
+    major_map[6] = "历史学"
+    major_map[7] = "理学"
+    major_map[8] = "工学"
+    major_map[9] = "农学"
+    major_map[10] = "医学"
+    major_map[11] = "军事学"
+    major_map[12] = "管理学"
+    major_map[13] = "艺术学"
+    major_type["商科"] = [2,12]
+    major_type["文科"] = [1,3,4,5,6]
+    major_type["理科"] = [7]
+    major_type["工科"] = [1,9,11]
+    major_type["艺科"] = [13]
+    var_major["A+"] = "1%"
+    var_major["A"] = "5%"
+    var_major["B+"] = "10%"
+    var_major["B"] = "15%"
+    var target_school = majorData.find(function(item){
+        return item.name === name
+    })
+    
+    var target_mode = target_school['ranked-disciplines']
+    
+    // var Names = ['A+','A','A-','B+','B','B-','C+','C','C-']
+    var counts = Array(14).fill(0)
+    var majors = Array(14)
+    var majors_grad = Array(14)
+    for(var i=0;i<14;i++){
+        majors[i] = []
+        majors_grad[i] = []
+    }
+    
+    target_mode.forEach(element => {
+        var index_temp = parseInt(element.name.substring(0,2))
+        if(!isNaN(index_temp)){
+            counts[index_temp] += 1
+            majors[index_temp].push(element.class)
+            majors_grad[index_temp].push(var_major[element.rank])
+        }
+        return
+    });
+    var data = []
+    var ci = 0
+    for(key in major_type){ //key:商科
+        var name1 = key
+        var itemStyle1 = {color:colors[ci]}
+        ci = ci + 1
+        var children1 = []
+        for(ckey in major_type[key]){
+            var index = major_type[key][ckey]
+            var name2 = major_map[index]
+            var children2 = []
+            // console.log(majors_grad[].length)
+            for(var i=0; i<majors_grad[index].length; i++){
+                var name3 = majors_grad[index][i]
+                var children3 = [{name:majors[index][i]}]
+                children2.push({name:name3,children:children3})
+            }
+            children1.push({name:name2,children:children2})
+        }
+        data.push({name:name1,itemStyle:itemStyle1,children:children1})
+    }
+    // console.log(data)
+
+    for (let j = 0; j < data.length; ++j) {
+        let level1 = data[j].children;
+        for (let i = 0; i < level1.length; ++i) {
+            let block = level1[i].children;
+            let bookScore = [];
+            let bookScoreId;
+            for (let star = 0; star < block.length; ++star) {
+            let style = (function (name) {
+                // console.log(name)
+                switch (name) {
+                    case '1%':
+                        // console.log(itemStyle.start5)
+                        bookScoreId = 0;
+                        return colors[0];
+                    case '5%':
+                        bookScoreId = 1;
+                        return colors[1];
+                    case '10%':
+                        bookScoreId = 2;
+                        return colors[2];
+                    case '15%':
+                        bookScoreId = 3;
+                        return colors[3];
+                }
+            })(block[star].name);
+            block[star].label = {
+                color: style.color,
+                downplay: {
+                opacity: 0.5
+                }
+            };
+            if (block[star].children) {
+                style = {
+                opacity: 1,
+                color: style.color
+                };
+                block[star].children.forEach(function (book) {
+                book.value = 1;
+                book.itemStyle = style;
+                book.label = {
+                    color: style.color
+                };
+                let value = 1;
+                if (bookScoreId === 0 || bookScoreId === 3) {
+                    value = 5;
+                }
+                if (bookScore[bookScoreId]) {
+                    bookScore[bookScoreId].value += value;
+                } else {
+                    bookScore[bookScoreId] = {
+                    color: colors[bookScoreId],
+                    value: value
+                    };
+                }
+                });
+            }
+            }
+            level1[i].itemStyle = {
+                color: data[j].itemStyle.color
+            };
+        }
+        }
+        option = {
+            
+        title: {
+            text: name,
+            subtext: year,
+            left: 'center',
+            textStyle: {
+                color: '#FEFF86a0',
+                fontSize: 25
+            },
+            subtextStyle: {
+                color: '#FEFF86a0',
+                fontSize: 20
+            }
+        },
+        // backgroundColor: bgColor,
+        color: colors,
+        series: [
+            {
+            type: 'sunburst',
+            center: ['50%', '48%'],
+            data: data,
+            sort: function (a, b) {
+                if (a.depth === 1) {
+                return b.getValue() - a.getValue();
+                } else {
+                return a.dataIndex - b.dataIndex;
+                }
+            },
+            label: {
+                rotate: 'radial',
+                color: bgColor
+            },
+            itemStyle: {
+                borderColor: bgColor,
+                borderWidth: 2
+            },
+            levels: [
+                {},
+                {
+                r0: 0,
+                r: 40,
+                label: {
+                    rotate: 0
+                }
+                },
+                {
+                r0: 60,
+                r: 110
+                },
+                {
+                r0: 140,
+                r: 170,
+                itemStyle: {
+                    shadowBlur: 2,
+                    shadowColor: colors[2],
+                    color: 'transparent'
+                },
+                label: {
+                    rotate: 'tangential',
+                    fontSize: 10,
+                    color: colors[0]
+                }
+                },
+                {
+                r0: 180,
+                r: 200,
+                itemStyle: {
+                    shadowBlur: 80,
+                    shadowColor: '#FEFF8653'
+                },
+                label: {
+                    position: 'outside',
+                    textShadowBlur: 20,
+                    textShadowColor: '#FEFF8653'
+                },
+                downplay: {
+                    label: {
+                    opacity: 0.5
+                    }
+                }
+                }
+            ]
+            }
+        ]
+    };
+    chart.setOption(option)
+}
 function setMain() {
     // 总榜
     $("#table").empty();
@@ -428,6 +659,8 @@ function setMain() {
         setCloud(cloudChart, schoolname);
 
         setRadar(radarChart, schoolname);
+
+        setCircle(circleChart, schoolname);
     });
 }
 </script>
