@@ -1,48 +1,49 @@
+.body {
+    background-color: #146C94c0;
+}
 .header {
-    background-color: blue;
-    /* height: 12vh; */
+    
+}
+.header .title {
+    color: #FEFF86d3;
+    text-align: center;
 }
 .main {
     display: flex;
     height: 95vh;
-    margin-top: 3vh;
 }
 .main .column {
-    flex: 3;
-    background-color: green;
+    background-color: #B0DAFF60;
+    flex: 4;
+}
+.main .column:nth-child(1) {
+    flex: 5;
+    /* margin: 1 0.125rem 0.1875rem; */
+    overflow: auto;
+    background-color: #19A7CEf0;
+}
+.main .column:nth-child(1)::-webkit-scrollbar {
+    display: none;
 }
 .main .column:nth-child(2) {
-    flex: 6;
-    margin: 1 0.125rem 0.1875rem;
-    overflow:auto;
-    background-color: red;
+    flex: 8;
 }
-/* .main .column:nth-child(3) {
-    flex: 1;
-    background-color: gray;
-} */
 .column #lefttopdiv {
-    background-color: pink;
     min-height: 30vh;
 }
 .column #leftmiddiv {
-    background-color: pink;
     min-height: 30vh;
 }
 .column #leftbotdiv {
-    background-color: pink;
     min-height: 30vh;
 }
 .column #righttopdiv {
-    background-color: pink;
     min-height: 30vh;
 }
 .column #rightmiddiv {
-    background-color: pink;
-    min-height: 30vh;
+    min-height: 100vh;
 }
 .column #rightbotdiv {
-    background-color: pink;
     min-height: 30vh;
 }
 .column #maintable {
@@ -50,32 +51,39 @@
     font-weight: bolder;
     align-items: center;
 }
+.tselect {
+    background-color: #146C94ff;
+    color: #FEFF86d3;
+    font-size: large;
+    text-align: center;
+}
+.th {
+    color: #FEFF86d3;
+    font-size: large;
+    text-align: center;
+}
 .tr {
-    color: yellow;
+    color: #FEFF86d3;
     text-align: center;
 }
 .tr:hover {
-    color: darkred;
+    color: #FEFF8680;
     /* text-align: center; */
-    background-color: orange;
+    background-color: #146C94ff;
 }
 .tr-clicked {
-    color: blue;
-    background-color: green;
-}
-.tr:focus {
-    color: blue;
-    background-color: gray;
+    color: #146C94f5;
+    background-color: #FEFF8653;
 }
 .td-name {
-    border: 3px solid gold;
+    border: 2px solid #FEFF8651;
 }
 .td-name-en {
-    border: 3px solid gold;
+    border: 2px solid #FEFF8651;
 }
 .td-score {
-    border: 3px solid gold;
+    border: 2px solid #FEFF8651;
 }
 .td-rank {
-    border: 3px solid gold;
+    border: 2px solid #FEFF8651;
 }
