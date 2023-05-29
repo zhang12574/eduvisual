@@ -87,6 +87,7 @@
     var type = "类型";
 
     var majorData;
+    var majorData2;
     var schoolData;
     
     var majorChart;
@@ -98,14 +99,18 @@
     var schoolname = "南开大学";
 
     var prevTR;
-    d3.json('../data/专业排名.json').then(function (jsonData) {
-        majorData = jsonData;
-        majorChart = echarts.init(document.getElementById('lefttopdiv'));
-        setMajor(majorChart, schoolname);
+    
+    d3.json("../data/专业排名_ADD.json").then(function (jsonData) {
+        majorData2 = jsonData;
+        d3.json('../data/专业排名.json').then(function (jsonData) {
+            majorData = jsonData;
+            majorChart = echarts.init(document.getElementById('lefttopdiv'));
+            setMajor(majorChart, schoolname);
 
-    // 词云
-        cloudChart = echarts.init(document.getElementById('leftmiddiv'));
-        setCloud(cloudChart, schoolname);
+        // 词云
+            cloudChart = echarts.init(document.getElementById('leftmiddiv'));
+            setCloud(cloudChart, schoolname);
+        });
     });
 
     // 筛选
@@ -144,7 +149,11 @@ function setMajor(chart, name) {
     var target_school = majorData.find(function(item){
         return item.name === name;
     })
-    
+    var target_school2 = majorData2.find(function(item){
+        return item.name === name;
+    })
+    if (target_school['ranked-disciplines'].length < target_school2['ranked-disciplines'].length) target_school = target_school2;
+
     var target_mode = target_school['ranked-disciplines']
     
     var Names = ['A+','A','A-','B+','B','B-','C+','C','C-']
@@ -152,6 +161,7 @@ function setMajor(chart, name) {
     target_mode.forEach(element => {
         for(var i=0;i<9;i++){
             if(element.rank === Names[i])counts[i] = counts[i]+1
+            console.log(element.rank)
         }
         return
     });
@@ -173,6 +183,7 @@ function setMajor(chart, name) {
         data['name'] = fnames[i]
         datas.push(data)
     }
+    console.log(datas)
 
     majorOption = {
         title: {
