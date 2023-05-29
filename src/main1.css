@@ -14,10 +14,10 @@
 }
 .main .column {
     background-color: #B0DAFF60;
-    flex: 3;
+    flex: 4;
 }
 .main .column:nth-child(1) {
-    flex: 3;
+    flex: 5;
     /* margin: 1 0.125rem 0.1875rem; */
     overflow: auto;
     background-color: #19A7CEf0;
