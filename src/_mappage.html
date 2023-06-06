@@ -23,7 +23,17 @@
     </div>
     <section class="main">
         <div class="column">
-            <div id="maptable" style="height: 90vh; width: 40vw;"></div>
+            <table id="tb">
+                <tr>
+                    <select title="类别" id="classselect" class="tselect">
+                        <option>类别</option>
+                    </select>
+                    <select title="类型" id="typeselect" class="tselect">
+                        <option>类型</option>
+                    </select>
+                </tr>
+            </table>
+            <div id="maptable" style="height: 90vh; width: 70vw;"></div>
         </div>
 
         <div class="column">
@@ -48,11 +58,41 @@
 </style>
 <script>
     var prov = "";
+    var school_type = "双一流"
+    var type = "类型";
     var schoolData;
+    var majorData;
+
+    var classes = ["985", "211", "双一流"]
+    var types = ["综合", "理工", "师范", "农业", "林业"];
+
+    var cselect = document.getElementById('classselect');
+    for (var i = 0; i < classes.length; i += 1) {
+        var op = document.createElement('option');
+        op.className = "op_class";
+        op.text=classes[i];
+        cselect.appendChild(op);
+    }
+    $("#classselect").change(function() {
+        school_type = $("#classselect option:selected").text();
+        updateMap();
+        setMain();
+    });
+    var tselect = document.getElementById('typeselect');
+    for (var i = 0; i < types.length; i += 1) {
+        var op = document.createElement('option');
+        op.className = "op_type";
+        op.text=types[i];
+        tselect.appendChild(op);
+    }
+    $("#typeselect").change(function() {
+        type = $("#typeselect option:selected").text();
+        updateMap();
+        setMain();
+    });
 
     var dom = document.getElementById('maptable');
     var myChart = echarts.init(dom);
-    var school_type = "double"
     d3.json('chinamap_sample.json').then(function (geoJson) {
         echarts.registerMap('china', geoJson);
     });
@@ -60,125 +100,142 @@
         schoolData = jsonData;
     });
     d3.json('../data/专业排名.json').then(function (jsonData) {
-        var schoolselect = document.getElementById('container');
-        var area_trans = {
-            '北京': 1, '天津': 2, '河北': 3, '山西': 4, '内蒙古': 5, '辽宁': 6, '吉林': 7, '黑龙江': 8, '上海': 9,
-            '江苏': 10, '浙江': 11, '安徽': 12, '福建': 13, '江西': 14, '山东': 15, '河南': 16, '湖北': 17,
-            '湖南': 18, '广东': 19, '广西': 20, '海南': 21, '重庆': 22, '四川': 23, '贵州': 24, '云南': 25,
-            '西藏': 26, '陕西': 27, '甘肃': 28, '青海': 29, '宁夏': 30, '新疆': 31
-        }
-        var area_985 = Array(32).fill(0);
-        var area_211 = Array(32).fill(0);
-        var area_double = Array(32).fill(0);
-        jsonData.forEach(function (item) {
-            var ct = item['class']
-            var area = item['province']
-            var index = area_trans[area]
-            var ct_split = ct.split('/')
-            ct_split.forEach(function (it) {
-                if (it === '985') {
-                    area_985[index] = area_985[index] + 1
-                }
-                else if (it == '211') {
-                    area_211[index] = area_211[index] + 1
-                }
-                else if (it == '双一流') {
-                    area_double[index] = area_double[index] + 1
-                }
-            })
-            return
-        })
-        ans_985 = []
-        ans_211 = []
-        ans_double = []
-        var count = 0
-        for (key in area_trans) {
-            ans_985.push({ name: key, value: area_985[area_trans[key]] })
-            ans_211.push({ name: key, value: area_211[area_trans[key]] })
-            ans_double.push({ name: key, value: area_double[area_trans[key]] })
-        }
-        var max = 10000
-        var datas = []
-        var gra_name = ""
-        if (school_type === "985") {
-            max = 7
-            datas = ans_985
-            gra_name = "985数目"
-        }
-        else if (school_type == "211") {
-            max = 20
-            datas = ans_211
-            gra_name = "211数目"
-        }
-        else if (school_type == "double") {
-            max = 20
-            datas = ans_double
-            gra_name = "双一流数目"
-        }
-        var option = {
-            tooltip: {
-                trigger: 'item',
-                showDelay: 0,
-                transitionDuration: 0.2
-            },
-            visualMap: {
-                left: 900,
-                top: 400,
-                min: 0,
-                max: max,
-                inRange: {
-                    color: [
-                        '#e0f3f8',
-                        '#ffffbf',
-                        '#fee090',
-                        '#fdae61',
-                        '#f46d43',
-                        '#d73027',
-                        '#a50026'
-                    ]
-                },
-                text: ['High', 'Low'],
-                calculable: true
-            },
-            toolbox: {
-                show: false,
-                //orient: 'vertical',
-                left: 'left',
-                top: 'top',
-                feature: {
-                    dataView: { readOnly: false },
-                    restore: {},
-                    saveAsImage: {}
-                }
-            },
-            series: [{
-                name: gra_name,
-                type: 'map',
-                map: 'china',
-                data: datas,
-            }]
-        };
-        myChart.on('click', function (params) {
-            if (params.componentType === 'series') {
-                // 判断点击的组件类型为 series（系列）
-                if (params.seriesType === 'map') {
-                    // 判断系列类型为 map（地图）
-                    display(params.name);
-                }
-            }
-        });
-        myChart.setOption(option);
-    });
-    function display(name) {
-        prov = name;
+        majorData = jsonData;
+        updateMap();
         setMain();
+    });
+function display(name) {
+    prov = name;
+    setMain();
+}
+function updateMap() {
+    var schoolselect = document.getElementById('container');
+    var area_trans = {
+        '北京': 1, '天津': 2, '河北': 3, '山西': 4, '内蒙古': 5, '辽宁': 6, '吉林': 7, '黑龙江': 8, '上海': 9,
+        '江苏': 10, '浙江': 11, '安徽': 12, '福建': 13, '江西': 14, '山东': 15, '河南': 16, '湖北': 17,
+        '湖南': 18, '广东': 19, '广西': 20, '海南': 21, '重庆': 22, '四川': 23, '贵州': 24, '云南': 25,
+        '西藏': 26, '陕西': 27, '甘肃': 28, '青海': 29, '宁夏': 30, '新疆': 31
     }
+    var area_985 = Array(32).fill(0);
+    var area_211 = Array(32).fill(0);
+    var area_双一流 = Array(32).fill(0);
+    majorData.forEach(function (item) {
+        var ct = item['class']
+        var area = item['province']
+        if (type != "类型" && item['type'] != type) return;
+        var index = area_trans[area]
+        var ct_split = ct.split('/')
+        ct_split.forEach(function (it) {
+            if (it === '985') {
+                area_985[index] = area_985[index] + 1
+            }
+            else if (it == '211') {
+                area_211[index] = area_211[index] + 1
+            }
+            else if (it == '双一流') {
+                area_双一流[index] = area_双一流[index] + 1
+            }
+        })
+        return
+    })
+    ans_985 = []
+    ans_211 = []
+    ans_双一流 = []
+    var count = 0
+    for (key in area_trans) {
+        ans_985.push({ name: key, value: area_985[area_trans[key]] })
+        ans_211.push({ name: key, value: area_211[area_trans[key]] })
+        ans_双一流.push({ name: key, value: area_双一流[area_trans[key]] })
+    }
+    var max = 10000
+    var datas = []
+    var gra_name = ""
+    if (school_type === "985") {
+        max = 7
+        datas = ans_985
+        gra_name = "985数目"
+    }
+    else if (school_type == "211") {
+        max = 20
+        datas = ans_211
+        gra_name = "211数目"
+    }
+    else if (school_type == "双一流") {
+        max = 20
+        datas = ans_双一流
+        gra_name = "双一流数目"
+    }
+    var option = {
+        tooltip: {
+            trigger: 'item',
+            showDelay: 0,
+            transitionDuration: 0.2
+        },
+        visualMap: {
+            left: 900,
+            top: 400,
+            min: 0,
+            max: max,
+            inRange: {
+                color: [
+                    '#e0f3f8',
+                    '#ffffbf',
+                    '#fee090',
+                    '#fdae61',
+                    '#f46d43',
+                    '#d73027',
+                    '#a50026'
+                ]
+            },
+            text: ['High', 'Low'],
+            calculable: true
+        },
+        toolbox: {
+            show: false,
+            //orient: 'vertical',
+            left: 'left',
+            top: 'top',
+            feature: {
+                dataView: { readOnly: false },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        series: [{
+            name: gra_name,
+            type: 'map',
+            map: 'china',
+            data: datas,
+        }]
+    };
+    myChart.on('click', function (params) {
+        if (params.componentType === 'series') {
+            // 判断点击的组件类型为 series（系列）
+            if (params.seriesType === 'map') {
+                // 判断系列类型为 map（地图）
+                display(params.name);
+            }
+        }
+    });
+    myChart.setOption(option);
+}
 function setMain() {
     // 总榜
     $(".tr").remove();
     var ul = document.getElementById('table');
     for (var i = 0; i < schoolData.length; i += 1) {
         if (prov != "地区" && schoolData[i]["province"] != prov) continue;
+        if (type != "类型" && schoolData[i]['type'] != type) continue;
+        var ct = schoolData[i]['class']
+        var ct_split = ct.split('/')
+        var acc = false;
+        ct_split.forEach(function (it) {
+            if (it === school_type) {
+                acc = true;
+            }
+        })
+        if (!acc) continue;
+
         var li = document.createElement('tr');
         li.className = "tr";
         ul.appendChild(li);
@@ -214,12 +271,6 @@ function setMain() {
         $(this).toggleClass("tr-clicked");
         if (prevTR) prevTR.toggleClass("tr-clicked");
         prevTR = $(this);
-
-        // setMajor(majorChart, schoolname);
-
-        // setCloud(cloudChart, schoolname);
-
-        // setRadar(radarChart, schoolname);
     });
 }
 </script>
