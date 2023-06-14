@@ -75,6 +75,7 @@
     }
     $("#classselect").change(function() {
         school_type = $("#classselect option:selected").text();
+        if (school_type == "类别") school_type = "双一流"
         updateMap();
         setMain();
     });
